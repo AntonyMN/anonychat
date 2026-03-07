@@ -1,0 +1,49 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /var/www/anonychat/web
+
+            # Pull latest changes
+            git pull origin main
+
+            # Install PHP dependencies
+            composer install --no-dev --optimize-autoloader
+
+            # Install JS dependencies and build
+            npm ci
+            npm run build
+
+            # Run migrations
+            php artisan migrate --force
+
+            # Clear and warm caches
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+
+            # Restart queue and Reverb
+            php artisan queue:restart
+            supervisorctl restart reverb 2>/dev/null || true
+
+            # Fix permissions
+            chown -R www-data:www-data /var/www/anonychat/web/storage
+            chmod -R 775 /var/www/anonychat/web/storage
