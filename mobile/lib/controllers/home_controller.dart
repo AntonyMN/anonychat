@@ -52,13 +52,13 @@ class HomeController extends GetxController {
     if (token == null) return;
 
     PusherOptions options = PusherOptions(
-      host: '192.168.100.122', // Local network IP
-      wsPort: 8080,
-      wssPort: 8080,
-      encrypted: false,
+      host: 'chat.orellepos.com',
+      wsPort: 443,
+      wssPort: 443,
+      encrypted: true,
       cluster: 'mt1',
       auth: PusherAuth(
-        'http://192.168.100.122:8000/api/broadcasting/auth',
+        'https://chat.orellepos.com/api/broadcasting/auth',
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -66,7 +66,7 @@ class HomeController extends GetxController {
       ),
     );
 
-    PusherClient pusher = PusherClient('9hnxdlgeeojuxglm2xxv', options, autoConnect: true, enableLogging: true);
+    PusherClient pusher = PusherClient('anonychat-key', options, autoConnect: true, enableLogging: true);
 
     echo = Echo(
       broadcaster: EchoBroadcasterType.Pusher,

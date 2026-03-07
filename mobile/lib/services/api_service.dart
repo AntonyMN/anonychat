@@ -6,8 +6,8 @@ class ApiService extends GetxService {
   late Dio dio;
   final storage = GetStorage();
 
-  // Change this to your server IP or 10.0.2.2 for Android Emulator
-  static const String baseUrl = 'http://192.168.100.122:8000/api'; 
+  // Production URL
+  static const String baseUrl = 'https://chat.orellepos.com/api'; 
 
   Future<ApiService> init() async {
     dio = Dio(BaseOptions(
