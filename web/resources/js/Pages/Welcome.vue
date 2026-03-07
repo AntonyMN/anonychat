@@ -16,26 +16,27 @@ defineProps({
         <div class="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-pink-600/10 blur-[100px] rounded-full"></div>
 
         <!-- Navigation -->
-        <nav class="relative z-10 flex items-center justify-between px-6 py-8 mx-auto max-w-7xl">
+        <nav class="relative z-10 flex items-center justify-between px-4 sm:px-6 py-6 mx-auto max-w-7xl">
             <div class="flex items-center gap-2">
-                <div class="bg-gradient-to-tr from-cyan-500 to-purple-600 p-2 rounded-xl shadow-lg shadow-cyan-500/20">
-                    <i class="bx bxs-chat text-3xl"></i>
+                <div class="bg-gradient-to-tr from-cyan-500 to-purple-600 p-1.5 sm:p-2 rounded-xl shadow-lg shadow-cyan-500/20">
+                    <i class="bx bxs-chat text-2xl sm:text-3xl"></i>
                 </div>
-                <span class="text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                <span class="text-xl sm:text-2xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
                     AnonyChat
                 </span>
             </div>
 
-            <div v-if="canLogin" class="flex items-center gap-6">
-                <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="text-sm font-semibold hover:text-cyan-400 transition-colors">
-                    Go to Dashboard
+            <div v-if="canLogin" class="flex items-center gap-3 sm:gap-6">
+                <Link v-if="$page.props.auth.user" :href="route('dashboard')" class="text-xs sm:text-sm font-semibold hover:text-cyan-400 transition-colors">
+                    Dashboard
                 </Link>
                 <template v-else>
-                    <Link :href="route('login')" class="text-sm font-semibold hover:text-cyan-400 transition-colors">
+                    <Link :href="route('login')" class="text-xs sm:text-sm font-semibold hover:text-cyan-400 transition-colors">
                         Log in
                     </Link>
-                    <Link v-if="canRegister" :href="route('register')" class="bg-white text-slate-900 px-5 py-2.5 rounded-full text-sm font-bold hover:bg-cyan-400 hover:text-white transition-all duration-300 transform hover:scale-105 shadow-xl shadow-white/5">
-                        Get Started
+                    <Link v-if="canRegister" :href="route('register')" class="bg-white text-slate-900 px-3 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold hover:bg-cyan-400 hover:text-white transition-all duration-300 transform hover:scale-105 shadow-xl shadow-white/5">
+                        <span class="hidden sm:inline">Get Started</span>
+                        <span class="sm:hidden">Join</span>
                     </Link>
                 </template>
             </div>
