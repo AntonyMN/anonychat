@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_boxicons/flutter_boxicons.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/chat_controller.dart';
 import '../../controllers/auth_controller.dart';
@@ -16,32 +17,52 @@ class ChatView extends StatelessWidget {
     final otherUser = controller.activeConversation.users[0];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: const Color(0xFFE2E8F0)),
+        ),
+        titleSpacing: 0,
+        leading: IconButton(
+          icon: const Icon(Boxicons.bx_arrow_back, color: Color(0xFF0F172A)),
+          onPressed: () => Get.back(),
+        ),
         title: Row(
           children: [
             CircleAvatar(
               radius: 18,
-              backgroundImage: NetworkImage(
-                otherUser.profileImageUrl,
+              backgroundColor: const Color(0xFFE0F2FE),
+              backgroundImage: NetworkImage(otherUser.profileImageUrl),
+              onBackgroundImageError: (_, __) {},
+              child: Text(
+                otherUser.username[0].toUpperCase(),
+                style: GoogleFonts.inter(color: const Color(0xFF06B6D4), fontWeight: FontWeight.w700, fontSize: 13),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(otherUser.username, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                const Text('Online', style: TextStyle(fontSize: 11, color: Colors.cyan)),
+                Text(
+                  otherUser.username,
+                  style: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+                ),
+                Text(
+                  'Online',
+                  style: GoogleFonts.inter(fontSize: 11, color: const Color(0xFF10B981), fontWeight: FontWeight.w500),
+                ),
               ],
             ),
           ],
         ),
-        backgroundColor: Colors.white.withOpacity(0.02),
-        elevation: 0,
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Boxicons.bx_dots_vertical_rounded, color: Color(0xFF64748B)),
+            icon: const Icon(Boxicons.bx_dots_vertical_rounded, color: Color(0xFF94A3B8)),
           ),
         ],
       ),
@@ -49,10 +70,10 @@ class ChatView extends StatelessWidget {
         children: [
           Expanded(
             child: Obx(() => controller.isLoading.value && controller.messages.isEmpty
-                ? const Center(child: CircularProgressIndicator(color: Colors.cyan))
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFF06B6D4)))
                 : ListView.builder(
                     controller: controller.scrollController,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
                       final msg = controller.messages[index];
@@ -71,16 +92,25 @@ class ChatView extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        margin: const EdgeInsets.only(bottom: 10),
+        constraints: const BoxConstraints(maxWidth: 280),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isMe ? Colors.cyan : Colors.white.withOpacity(0.05),
+          color: isMe ? const Color(0xFF06B6D4) : Colors.white,
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(20),
-            topRight: const Radius.circular(20),
-            bottomLeft: Radius.circular(isMe ? 20 : 0),
-            bottomRight: Radius.circular(isMe ? 0 : 20),
+            topLeft: const Radius.circular(18),
+            topRight: const Radius.circular(18),
+            bottomLeft: Radius.circular(isMe ? 18 : 4),
+            bottomRight: Radius.circular(isMe ? 4 : 18),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+          border: isMe ? null : Border.all(color: const Color(0xFFE2E8F0)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -88,7 +118,11 @@ class ChatView extends StatelessWidget {
           children: [
             Text(
               msg.content,
-              style: TextStyle(color: isMe ? Colors.white : Colors.white, fontSize: 15),
+              style: GoogleFonts.inter(
+                color: isMe ? Colors.white : const Color(0xFF0F172A),
+                fontSize: 14,
+                height: 1.4,
+              ),
             ),
             const SizedBox(height: 4),
             Row(
@@ -96,16 +130,16 @@ class ChatView extends StatelessWidget {
               children: [
                 Text(
                   DateFormat.jm().format(msg.createdAt),
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     fontSize: 10,
-                    color: isMe ? Colors.white.withOpacity(0.7) : Colors.white24,
+                    color: isMe ? Colors.white.withOpacity(0.7) : const Color(0xFF94A3B8),
                   ),
                 ),
                 if (isMe) ...[
                   const SizedBox(width: 4),
                   Icon(
                     Boxicons.bx_check_double,
-                    size: 14,
+                    size: 13,
                     color: msg.readAt != null ? Colors.white : Colors.white.withOpacity(0.4),
                   ),
                 ],
@@ -119,63 +153,47 @@ class ChatView extends StatelessWidget {
 
   Widget _buildMessageInput(ChatController controller) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
-        border: Border(top: BorderSide(color: Colors.white.withOpacity(0.05))),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
       ),
       child: Row(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(Boxicons.bx_plus, color: Colors.cyan),
-            ),
-          ),
-          const SizedBox(width: 12),
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(16),
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(24),
               ),
               child: TextField(
                 controller: controller.messageController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: 'Type message...',
-                  hintStyle: TextStyle(color: Colors.white24),
+                style: GoogleFonts.inter(color: const Color(0xFF0F172A), fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'Type a message...',
+                  hintStyle: GoogleFonts.inter(color: const Color(0xFF94A3B8), fontSize: 14),
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                 ),
                 onSubmitted: (_) => controller.sendMessage(),
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.cyan,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(color: Colors.cyan.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4)),
-              ],
-            ),
-            child: IconButton(
-              onPressed: () => controller.sendMessage(),
-              icon: const Icon(Boxicons.bx_paper_plane, color: Colors.white, size: 20),
+          const SizedBox(width: 10),
+          GestureDetector(
+            onTap: () => controller.sendMessage(),
+            child: Container(
+              width: 46,
+              height: 46,
+              decoration: const BoxDecoration(
+                color: Color(0xFF06B6D4),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Boxicons.bx_paper_plane, color: Colors.white, size: 20),
             ),
           ),
         ],
       ),
     );
   }
-}
-
-extension ColorsExtension on Colors {
-  static const whitee = Colors.white;
 }

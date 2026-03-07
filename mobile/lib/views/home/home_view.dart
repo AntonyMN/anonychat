@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_boxicons/flutter_boxicons.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/home_controller.dart';
 import '../../controllers/auth_controller.dart';
@@ -16,63 +17,98 @@ class HomeView extends StatelessWidget {
     final authController = Get.find<AuthController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('AnonyChat', style: TextStyle(fontWeight: FontWeight.w900, color: Colors.white)),
-        backgroundColor: Colors.transparent,
+        title: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: const Color(0xFF06B6D4).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Boxicons.bxs_chat, color: Color(0xFF06B6D4), size: 18),
+            ),
+            const SizedBox(width: 10),
+            Text('AnonyChat', style: GoogleFonts.inter(fontWeight: FontWeight.w800, color: const Color(0xFF0F172A))),
+          ],
+        ),
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: const Color(0xFFE2E8F0)),
+        ),
         actions: [
           IconButton(
             onPressed: () => _showSearchDialog(context),
-            icon: const Icon(Boxicons.bx_search, color: Colors.cyan),
+            icon: const Icon(Boxicons.bx_search, color: Color(0xFF64748B)),
           ),
           IconButton(
             onPressed: () => authController.logout(),
-            icon: const Icon(Boxicons.bx_log_out, color: Colors.pinkAccent),
+            icon: const Icon(Boxicons.bx_log_out, color: Color(0xFF64748B)),
           ),
         ],
       ),
       body: RefreshIndicator(
         onRefresh: homeController.fetchDashboard,
+        color: const Color(0xFF06B6D4),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildSectionTitle('Friend Requests'),
+              // Friend Requests
               Obx(() => homeController.friendRequests.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                      child: Text('No pending requests.', style: TextStyle(color: Color(0xFF64748B))),
-                    )
-                  : SizedBox(
-                      height: 140,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: homeController.friendRequests.length,
-                        itemBuilder: (context, index) {
-                          final req = homeController.friendRequests[index];
-                          return _buildRequestCard(req, homeController);
-                        },
-                      ),
+                  ? const SizedBox.shrink()
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionTitle('Friend Requests'),
+                        SizedBox(
+                          height: 140,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: homeController.friendRequests.length,
+                            itemBuilder: (context, index) {
+                              final req = homeController.friendRequests[index];
+                              return _buildRequestCard(req, homeController);
+                            },
+                          ),
+                        ),
+                      ],
                     )),
-              _buildSectionTitle('Active Chats'),
+              _buildSectionTitle('Messages'),
               Obx(() => homeController.conversations.isEmpty
-                  ? const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
                       child: Column(
                         children: [
-                          Icon(Boxicons.bx_chat, size: 64, color: Colors.white10),
-                          SizedBox(height: 16),
-                          Text('No conversations yet.', style: TextStyle(color: Color(0xFF64748B))),
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            child: const Icon(Boxicons.bx_chat, size: 48, color: Color(0xFFCBD5E1)),
+                          ),
+                          const SizedBox(height: 16),
+                          Text('No conversations yet.',
+                              style: GoogleFonts.inter(color: const Color(0xFF94A3B8), fontSize: 15)),
+                          const SizedBox(height: 8),
+                          Text('Search for friends to start chatting!',
+                              style: GoogleFonts.inter(color: const Color(0xFFCBD5E1), fontSize: 13)),
                         ],
                       ),
                     )
-                  : ListView.builder(
+                  : ListView.separated(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: homeController.conversations.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1, indent: 84, endIndent: 0),
                       itemBuilder: (context, index) {
                         final conv = homeController.conversations[index];
                         return _buildChatTile(conv);
@@ -84,7 +120,8 @@ class HomeView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showSearchDialog(context),
-        backgroundColor: Colors.cyan,
+        backgroundColor: const Color(0xFF06B6D4),
+        elevation: 2,
         child: const Icon(Boxicons.bx_plus, color: Colors.white),
       ),
     );
@@ -92,13 +129,13 @@ class HomeView extends StatelessWidget {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
       child: Text(
         title.toUpperCase(),
-        style: const TextStyle(
-          color: Color(0xFF64748B),
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
+        style: GoogleFonts.inter(
+          color: const Color(0xFF94A3B8),
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
           letterSpacing: 1.5,
         ),
       ),
@@ -107,108 +144,149 @@ class HomeView extends StatelessWidget {
 
   Widget _buildRequestCard(FriendRequest req, HomeController controller) {
     return Container(
-      width: 160,
+      width: 150,
       margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withOpacity(0.05)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundColor: Colors.cyan.withOpacity(0.1),
-            child: Text(req.sender.username[0].toUpperCase(), style: const TextStyle(color: Colors.cyan)),
+            backgroundColor: const Color(0xFF06B6D4).withOpacity(0.1),
+            child: Text(
+              req.sender.username[0].toUpperCase(),
+              style: GoogleFonts.inter(color: const Color(0xFF06B6D4), fontWeight: FontWeight.w700),
+            ),
           ),
           const SizedBox(height: 8),
-          Text(req.sender.username, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white), overflow: TextOverflow.ellipsis),
-          const Spacer(),
+          Text(
+            req.sender.username,
+            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF0F172A)),
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              IconButton(
-                onPressed: () => controller.acceptFriendRequest(req.id),
-                icon: const Icon(Boxicons.bx_check, color: Colors.greenAccent, size: 20),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+              _actionButton(
+                icon: Boxicons.bx_check,
+                color: const Color(0xFF10B981),
+                onTap: () => controller.acceptFriendRequest(req.id),
               ),
               const SizedBox(width: 8),
-              IconButton(
-                onPressed: () => controller.declineFriendRequest(req.id),
-                icon: const Icon(Boxicons.bx_x, color: Colors.pinkAccent, size: 20),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
+              _actionButton(
+                icon: Boxicons.bx_x,
+                color: const Color(0xFFEF4444),
+                onTap: () => controller.declineFriendRequest(req.id),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildChatTile(Conversation conv) {
-    final otherUser = conv.users[0]; // Assuming private chat
-    final lastMsg = conv.lastMessage;
-    
-    return ListTile(
-      onTap: () => Get.toNamed('/chat', arguments: conv),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      leading: Container(
-        padding: const EdgeInsets.all(2),
+  Widget _actionButton({required IconData icon, required Color color, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.cyan.withOpacity(0.3)),
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(14),
-          child: Image.network(
-            otherUser.profileImageUrl,
-            width: 52,
-            height: 52,
-            fit: BoxFit.cover,
-          ),
+        child: Icon(icon, color: color, size: 18),
+      ),
+    );
+  }
+
+  Widget _buildChatTile(Conversation conv) {
+    final otherUser = conv.users[0];
+    final lastMsg = conv.lastMessage;
+
+    return InkWell(
+      onTap: () => Get.toNamed('/chat', arguments: conv),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          children: [
+            // Avatar
+            CircleAvatar(
+              radius: 26,
+              backgroundColor: const Color(0xFFE0F2FE),
+              backgroundImage: NetworkImage(otherUser.profileImageUrl),
+              onBackgroundImageError: (_, __) {},
+              child: Text(
+                otherUser.username[0].toUpperCase(),
+                style: GoogleFonts.inter(color: const Color(0xFF06B6D4), fontWeight: FontWeight.w700),
+              ),
+            ),
+            const SizedBox(width: 14),
+            // Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    otherUser.username,
+                    style: GoogleFonts.inter(fontWeight: FontWeight.w600, color: const Color(0xFF0F172A), fontSize: 15),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    lastMsg?.content ?? 'Start a conversation...',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(color: const Color(0xFF94A3B8), fontSize: 13),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              lastMsg != null ? DateFormat.jm().format(lastMsg.createdAt) : '',
+              style: GoogleFonts.inter(color: const Color(0xFFCBD5E1), fontSize: 11),
+            ),
+          ],
         ),
-      ),
-      title: Text(otherUser.username, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-      subtitle: Text(
-        lastMsg?.content ?? 'Start a conversation...',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(color: Color(0xFF64748B), fontSize: 13),
-      ),
-      trailing: Text(
-        lastMsg != null ? DateFormat.jm().format(lastMsg.createdAt) : '',
-        style: const TextStyle(color: Colors.white24, fontSize: 12),
       ),
     );
   }
 
   void _showSearchDialog(BuildContext context) {
     final searchController = Get.put(UserSearchController());
-    
+
     Get.dialog(
       Dialog(
-        backgroundColor: const Color(0xFF1E293B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Search User', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+              Text('Find Users',
+                  style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700, color: const Color(0xFF0F172A))),
               const SizedBox(height: 16),
               TextField(
                 autofocus: true,
-                style: const TextStyle(color: Colors.white),
+                style: GoogleFonts.inter(color: const Color(0xFF0F172A)),
                 decoration: InputDecoration(
-                  hintText: 'Type username...',
-                  hintStyle: const TextStyle(color: Color(0xFF64748B)),
-                  prefixIcon: const Icon(Boxicons.bx_search, color: Colors.cyan),
-                  filled: true,
-                  fillColor: Colors.white.withOpacity(0.05),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  hintText: 'Search username...',
+                  hintStyle: GoogleFonts.inter(color: const Color(0xFF94A3B8)),
+                  prefixIcon: const Icon(Boxicons.bx_search, color: Color(0xFF94A3B8), size: 20),
                 ),
                 onChanged: (value) => searchController.searchUsers(value),
               ),
@@ -216,21 +294,24 @@ class HomeView extends StatelessWidget {
               ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 300),
                 child: Obx(() => searchController.isLoading.value
-                    ? const Center(child: CircularProgressIndicator(color: Colors.cyan))
+                    ? const Center(child: CircularProgressIndicator(color: Color(0xFF06B6D4)))
                     : ListView.builder(
                         shrinkWrap: true,
                         itemCount: searchController.searchResults.length,
                         itemBuilder: (context, index) {
                           final user = searchController.searchResults[index];
                           return ListTile(
+                            contentPadding: EdgeInsets.zero,
                             leading: CircleAvatar(
-                              backgroundColor: Colors.white12,
-                              child: Text(user.username[0].toUpperCase(), style: const TextStyle(color: Colors.white)),
+                              backgroundColor: const Color(0xFFE0F2FE),
+                              child: Text(user.username[0].toUpperCase(),
+                                  style: GoogleFonts.inter(color: const Color(0xFF06B6D4), fontWeight: FontWeight.w600)),
                             ),
-                            title: Text(user.username, style: const TextStyle(color: Colors.white)),
+                            title: Text(user.username,
+                                style: GoogleFonts.inter(color: const Color(0xFF0F172A), fontWeight: FontWeight.w500)),
                             trailing: IconButton(
                               onPressed: () => searchController.sendFriendRequest(user.id),
-                              icon: const Icon(Boxicons.bx_user_plus, color: Colors.cyan),
+                              icon: const Icon(Boxicons.bx_user_plus, color: Color(0xFF06B6D4)),
                             ),
                           );
                         },
@@ -239,7 +320,7 @@ class HomeView extends StatelessWidget {
             ],
           ),
         ),
-      )
+      ),
     );
   }
 }
