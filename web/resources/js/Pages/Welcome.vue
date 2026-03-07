@@ -69,7 +69,10 @@ defineProps({
                     </span>
                     <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 rounded-2xl"></div>
                 </Link>
-                <a href="#features" class="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all backdrop-blur-sm">
+                <a href="/downloads/anonychat.apk" class="px-8 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold text-lg hover:bg-white/10 transition-all backdrop-blur-sm flex items-center gap-2">
+                    <i class="bx bxl-android text-2xl text-emerald-400"></i> Download APK
+                </a>
+                <a href="#features" class="px-8 py-4 text-slate-400 hover:text-white transition-all text-sm font-medium self-center">
                     Explore Features
                 </a>
             </div>
