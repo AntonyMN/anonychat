@@ -49,11 +49,12 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<bool> register(String username, String password) async {
+  Future<bool> register(String username, String password, {String? email}) async {
     isLoading.value = true;
     try {
       final response = await _api.post('/register', data: {
         'username': username,
+        'email': email,
         'password': password,
       });
 

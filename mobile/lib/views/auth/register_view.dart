@@ -13,6 +13,7 @@ class RegisterView extends StatefulWidget {
 
 class _RegisterViewState extends State<RegisterView> {
   final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authController = Get.find<AuthController>();
 
@@ -72,6 +73,12 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
                 const SizedBox(height: 14),
                 _buildTextField(
+                  controller: _emailController,
+                  hint: 'Email (Optional)',
+                  icon: Boxicons.bx_envelope,
+                ),
+                const SizedBox(height: 14),
+                _buildTextField(
                   controller: _passwordController,
                   hint: 'Create a Password',
                   icon: Boxicons.bx_lock_open_alt,
@@ -85,6 +92,7 @@ class _RegisterViewState extends State<RegisterView> {
                           final success = await _authController.register(
                             _usernameController.text,
                             _passwordController.text,
+                            email: _emailController.text.isNotEmpty ? _emailController.text : null,
                           );
                           if (success) Get.offAllNamed('/home');
                         },
