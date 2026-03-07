@@ -1,0 +1,21 @@
+
+Running Gradle task 'assembleDebug'...                          
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':flutter_plugin_android_lifecycle:compileDebugJavaWithJavac'.
+> Could not resolve all files for configuration ':flutter_plugin_android_lifecycle:androidJdkImage'.
+   > Failed to transform core-for-system-modules.jar to match attributes {artifactType=_internal_android_jdk_image, org.gradle.libraryelements=jar, org.gradle.usage=java-runtime}.
+      > Execution failed for JdkImageTransform: /home/anto/Android/Sdk/platforms/android-35/core-for-system-modules.jar.
+         > Error while executing process /snap/android-studio/209/jbr/bin/jlink with arguments {--module-path /home/anto/.gradle/caches/transforms-3/3bacfa4073361e6244bcddeaa908b9f7/transformed/output/temp/jmod --add-modules java.base --output /home/anto/.gradle/caches/transforms-3/3bacfa4073361e6244bcddeaa908b9f7/transformed/output/jdkImage --disable-plugin system-modules}
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 5s
+Running Gradle task 'assembleDebug'...                              6.1s
+Gradle task assembleDebug failed with exit code 1

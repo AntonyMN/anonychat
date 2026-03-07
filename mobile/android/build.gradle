@@ -1,0 +1,79 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.ext.compileSdkVersion = 35
+rootProject.ext.minSdkVersion = 21
+rootProject.ext.targetSdkVersion = 35
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    def configureProject = { project ->
+        if (project.hasProperty("android")) {
+            project.android {
+                if (compileSdkVersion == null || compileSdkVersion == 0) {
+                    compileSdkVersion rootProject.ext.compileSdkVersion
+                }
+                if (defaultConfig.minSdkVersion == null) {
+                    defaultConfig.minSdkVersion rootProject.ext.minSdkVersion
+                }
+                if (defaultConfig.targetSdkVersion == null) {
+                    defaultConfig.targetSdkVersion rootProject.ext.targetSdkVersion
+                }
+                
+                // Add namespace if missing
+                if (namespace == null) {
+                    namespace project.group
+                }
+
+                // HACK: Provide 'flutter' property if missing to satisfy plugins like file_picker
+                if (!project.android.hasProperty('flutter')) {
+                    project.android.ext.flutter = [
+                        compileSdkVersion: rootProject.ext.compileSdkVersion,
+                        minSdkVersion: rootProject.ext.minSdkVersion,
+                        targetSdkVersion: rootProject.ext.targetSdkVersion,
+                    ]
+                }
+            }
+        }
+    }
+
+    if (project.state.executed) {
+        configureProject(project)
+    } else {
+        project.afterEvaluate {
+            configureProject(project)
+        }
+    }
+
+    // Force JVM target for all subprojects
+    project.afterEvaluate {
+        if (project.hasProperty("android")) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility = JavaVersion.VERSION_17
+                    targetCompatibility = JavaVersion.VERSION_17
+                }
+            }
+        }
+        project.tasks.withType(JavaCompile) {
+            sourceCompatibility = "17"
+            targetCompatibility = "17"
+        }
+        project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

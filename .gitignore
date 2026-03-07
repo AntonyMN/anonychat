@@ -1,0 +1,26 @@
+# Web / Laravel
+web/.env
+web/vendor/
+web/node_modules/
+web/storage/logs/
+web/storage/app/public/
+web/bootstrap/cache/
+web/public/build
+web/public/hot
+web/.phpunit.result.cache
+
+# Mobile / Flutter
+mobile/build/
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/*.apk
+mobile/*.aab
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+
+# General
+.DS_Store
+*.log

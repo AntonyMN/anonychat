@@ -1,0 +1,9 @@
+Analyzing mobile...                                             
+
+warning • Unused import: '../models/user.model.dart' • lib/controllers/chat_controller.dart:6:8 • unused_import
+   info • Don't invoke 'print' in production code • lib/controllers/chat_controller.dart:42:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/controllers/home_controller.dart:44:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/controllers/search_controller.dart:24:7 • avoid_print
+warning • The value of the local variable 'apiService' isn't used • lib/main.dart:13:9 • unused_local_variable
+
+5 issues found. (ran in 1.4s)
