@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:laravel_echo/laravel_echo.dart';
 import 'package:pusher_client_fixed/pusher_client_fixed.dart';
@@ -97,7 +98,8 @@ class HomeController extends GetxController {
 
     echo!.private('notifications.${_auth.user.value!.id}')
         .listen('FriendRequestSent', (e) {
-          final req = FriendRequest.fromJson(e['friendRequest']);
+          final data = jsonDecode(e.data);
+          final req = FriendRequest.fromJson(data['friendRequest']);
           friendRequests.add(req);
           Get.snackbar('New Friend Request', '${req.sender.username} wants to be friends!');
         });

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravel_echo/laravel_echo.dart';
@@ -58,7 +59,8 @@ class ChatController extends GetxController {
 
     echo!.private('conversation.${activeConversation.id}')
         .listen('MessageSent', (e) {
-          final msg = Message.fromJson(e['message']);
+          final data = jsonDecode(e.data);
+          final msg = Message.fromJson(data['message']);
           if (msg.senderId != _auth.user.value!.id) {
             messages.add(msg);
             _scrollToBottom();
