@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../controllers/chat_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../models/chat.model.dart';
+import '../../models/user.model.dart';
 
 class ChatView extends StatelessWidget {
   const ChatView({super.key});
@@ -15,7 +16,7 @@ class ChatView extends StatelessWidget {
     final controller = Get.put(ChatController());
     final authController = Get.find<AuthController>();
     final otherUser = controller.activeConversation.users.firstWhere(
-      (u) => u.id != authController.user.value?.id,
+      (User u) => u.id != authController.user.value?.id,
       orElse: () => controller.activeConversation.users[0],
     );
 
@@ -129,7 +130,7 @@ class ChatView extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(
-                  'https://chat.orellepos.com/storage/${msg.filePath}',
+                  '${ApiService.storageUrl}/${msg.filePath}',
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
@@ -157,7 +158,7 @@ class ChatView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  DateFormat.jm().format(msg.createdAt),
+                  DateFormat.jm().format(msg.createdAt.toLocal()),
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     color: isMe ? Colors.white.withOpacity(0.7) : const Color(0xFF94A3B8),

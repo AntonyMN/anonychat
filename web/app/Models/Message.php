@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-    protected $fillable = ['conversation_id', 'sender_id', 'type', 'content', 'read_at'];
+    protected $fillable = ['conversation_id', 'sender_id', 'type', 'content', 'file_path', 'read_at'];
 
     protected $casts = [
         'read_at' => 'datetime',

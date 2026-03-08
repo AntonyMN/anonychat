@@ -19,7 +19,7 @@ class MessageSent implements ShouldBroadcastNow
 
     public function __construct(Message $message)
     {
-        $this->message = $message->load(['sender', 'attachments']);
+        $this->message = $message->load(['sender']);
     }
 
     public function broadcastOn(): array
@@ -27,5 +27,10 @@ class MessageSent implements ShouldBroadcastNow
         return [
             new PrivateChannel('conversation.' . $this->message->conversation_id),
         ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'MessageSent';
     }
 }

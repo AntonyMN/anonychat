@@ -1,3 +1,8 @@
+import '../services/api_service.dart';
+
+class User {
+  final int id;
+  final String username;
   final String? email;
   final String? profileImage;
   final bool isFriend;
@@ -18,7 +23,7 @@
 
   String get profileImageUrl {
     if (profileImage != null && !profileImage!.startsWith('http')) {
-      return 'https://chat.orellepos.com/storage/$profileImage';
+      return '${ApiService.storageUrl}/$profileImage';
     }
     return profileImage ?? 'https://ui-avatars.com/api/?name=$username&background=06B6D4&color=fff';
   }

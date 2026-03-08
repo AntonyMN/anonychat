@@ -111,13 +111,22 @@ class HomeController extends GetxController {
       client: pusher,
     );
 
-    echo!.private('notifications.${_auth.user.value!.id}')
-        .listen('FriendRequestSent', (e) {
-          final data = jsonDecode(e.data);
-          final req = FriendRequest.fromJson(data['friendRequest']);
-          friendRequests.add(req);
-          Get.snackbar('New Friend Request', '${req.sender.username} wants to be friends!');
-        });
+    var channel = echo!.private('notifications.${_auth.user.value!.id}');
+    
+    // Explicit name listener
+    channel.listen('FriendRequestSent', (e) => _handleFriendRequest(e));
+  }
+
+  void _handleFriendRequest(dynamic e) {
+    print('Echo: FriendRequestSent received: $e');
+    try {
+      final data = jsonDecode(e is String ? e : e.data);
+      final req = FriendRequest.fromJson(data['friendRequest']);
+      friendRequests.add(req);
+      Get.snackbar('New Friend Request', '${req.sender.username} wants to be friends!');
+    } catch (err) {
+      print('Echo Error parsing friend request: $err');
+    }
   }
 
   Future<void> acceptFriendRequest(int requestId) async {

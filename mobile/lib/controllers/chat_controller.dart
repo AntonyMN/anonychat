@@ -71,20 +71,32 @@ class ChatController extends GetxController {
       return;
     }
 
-    echo!.private('conversation.${activeConversation.id}')
-        .listen('MessageSent', (e) {
-          final data = jsonDecode(e.data);
-          final msg = Message.fromJson(data['message']);
-          if (msg.senderId != _auth.user.value!.id) {
-            messages.add(msg);
-            _scrollToBottom();
-            _markAsRead();
-          }
-        })
-        .listen('MessageRead', (e) {
-           // Update read status for messages
-           // messages.forEach(...)
-        });
+    print('Echo Subscribing: conversation.${activeConversation.id}');
+    var channel = echo!.private('conversation.${activeConversation.id}');
+    
+    // Use the absolute name to be safe
+    channel.listen('.App\\Events\\MessageSent', (e) => _handleNewMessage(e));
+    channel.listen('MessageSent', (e) => _handleNewMessage(e));
+    
+    channel.listen('MessageRead', (e) {
+      print('Echo: MessageRead received');
+      // Update read status for messages
+    });
+  }
+
+  void _handleNewMessage(dynamic e) {
+    print('Echo: MessageSent received: $e');
+    try {
+      final data = jsonDecode(e is String ? e : e.data);
+      final msg = Message.fromJson(data['message']);
+      if (msg.senderId != _auth.user.value!.id) {
+        messages.add(msg);
+        _scrollToBottom();
+        _markAsRead();
+      }
+    } catch (err) {
+      print('Echo Error parsing message: $err');
+    }
   }
 
   Future<void> sendMessage({String? content, File? file}) async {

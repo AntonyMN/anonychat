@@ -28,4 +28,9 @@ class FriendRequestSent implements ShouldBroadcastNow
             new PrivateChannel('notifications.' . $this->friendRequest->receiver_id),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'FriendRequestSent';
+    }
 }

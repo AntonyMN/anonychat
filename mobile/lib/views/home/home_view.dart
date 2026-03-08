@@ -7,6 +7,8 @@ import '../../controllers/home_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/search_controller.dart';
 import '../../models/chat.model.dart';
+import '../../models/user.model.dart';
+import '../../services/api_service.dart';
 import '../../widgets/demo_banner.dart';
 
 class HomeView extends StatelessWidget {
@@ -249,7 +251,7 @@ class HomeView extends StatelessWidget {
   Widget _buildChatTile(Conversation conv) {
     // In our app, conversations are between 2 users. We want the one that isn't the current user.
     final auth = Get.find<AuthController>();
-    final otherUser = conv.users.firstWhere((u) => u.id != auth.user.value?.id, orElse: () => conv.users[0]);
+    final otherUser = conv.users.firstWhere((User u) => u.id != auth.user.value?.id, orElse: () => conv.users[0]);
     final lastMsg = conv.lastMessage;
 
     return Card(
@@ -303,7 +305,7 @@ class HomeView extends StatelessWidget {
               const SizedBox(width: 8),
               if (lastMsg != null)
                 Text(
-                  DateFormat.jm().format(lastMsg.createdAt),
+                  DateFormat.jm().format(lastMsg.createdAt.toLocal()),
                   style: GoogleFonts.inter(color: const Color(0xFFCBD5E1), fontSize: 12),
                 ),
             ],
@@ -400,7 +402,7 @@ class HomeView extends StatelessWidget {
   void _startConversation(int userId) async {
     final homeController = Get.find<HomeController>();
     try {
-      final response = await Get.find<ApiService>().post('/conversations/start', data: {'user_id': userId});
+      final response = await Get.find<ApiService>().post('/chat/start', data: {'user_id': userId});
       final conv = Conversation.fromJson(response.data);
       Get.toNamed('/chat', arguments: conv);
       homeController.fetchDashboard(); // Refresh chat list

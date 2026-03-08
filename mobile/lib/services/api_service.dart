@@ -8,6 +8,7 @@ class ApiService extends GetxService {
 
   // Production URL
   static const String baseUrl = 'https://chat.orellepos.com/api'; 
+  static String get storageUrl => baseUrl.replaceAll('/api', '/storage');
 
   Future<ApiService> init() async {
     dio = Dio(BaseOptions(
@@ -32,7 +33,7 @@ class ApiService extends GetxService {
         if (e.response?.statusCode == 401) {
           // Handle unauthorized (session expired)
           storage.remove('auth_token');
-          // Get.offAllNamed('/login'); // We will define this route later
+          Get.offAllNamed('/login');
         }
         return handler.next(e);
       },

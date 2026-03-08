@@ -5,6 +5,7 @@ class Message {
   final int conversationId;
   final int senderId;
   final String content;
+  final String type;
   final String? filePath;
   final DateTime? readAt;
   final DateTime createdAt;
