@@ -9,16 +9,28 @@ import 'controllers/auth_controller.dart';
 import 'routes/app_pages.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  await GetStorage.init();
-  
-  // Initialize services
-  final apiService = await Get.putAsync(() => ApiService().init());
-  final notificationService = await Get.putAsync(() => NotificationService().init());
-  Get.put(AuthController());
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    await GetStorage.init();
+    
+    // Initialize services in correct order
+    // 1. Storage and Firebase (done)
+    // 2. API Service (basic dependency)
+    final apiService = await Get.putAsync(() => ApiService().init());
+    
+    // 3. Auth Controller (depends on ApiService)
+    final authController = Get.put(AuthController());
+    
+    // 4. Notification Service (depends on AuthController)
+    await Get.putAsync(() => NotificationService().init());
 
-  runApp(const MyApp());
+    runApp(const MyApp());
+  } catch (e) {
+    print('Initialization error: $e');
+    // Still try to run the app to avoid white screen
+    runApp(const MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {
