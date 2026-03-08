@@ -7,6 +7,7 @@ import '../../controllers/home_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../controllers/search_controller.dart';
 import '../../models/chat.model.dart';
+import '../../widgets/demo_banner.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -60,6 +61,11 @@ class HomeView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Demo Banner
+              Obx(() => homeController.isDemoMode.value
+                  ? DemoBanner(nextResetAt: homeController.nextResetAt.value)
+                  : const SizedBox.shrink()),
+              
               // Friend Requests
               Obx(() => homeController.friendRequests.isEmpty
                   ? const SizedBox.shrink()

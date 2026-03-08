@@ -1,4 +1,20 @@
 <script setup>
+import DemoBanner from '@/Components/DemoBanner.vue';
+import { onMounted, ref } from 'vue';
+import axios from 'axios';
+
+const demoConfig = ref(null);
+
+onMounted(async () => {
+    try {
+        const response = await axios.get('/api/config');
+        if (response.data.app_env === 'demo') {
+            demoConfig.value = response.data;
+        }
+    } catch (e) {
+        console.error('Failed to load demo config');
+    }
+});
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -19,6 +35,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+        <DemoBanner v-if="demoConfig" :nextResetAt="demoConfig.next_reset_at" />
         <Head title="Create Account — AnonyChat" />
 
         <!-- Header -->

@@ -16,11 +16,16 @@ class HomeController extends GetxController {
   var friends = <User>[].obs;
   var isLoading = false.obs;
 
+  // Demo Mode
+  var isDemoMode = false.obs;
+  var nextResetAt = ''.obs;
+
   Echo? echo;
 
   @override
   void onInit() {
     super.onInit();
+    fetchConfig();
     
     // Listen to user changes to setup/teardown Echo
     ever(_auth.user, (user) {
@@ -39,6 +44,16 @@ class HomeController extends GetxController {
     if (_auth.isLoggedIn) {
       setupEcho();
       fetchDashboard();
+    }
+  }
+
+  Future<void> fetchConfig() async {
+    try {
+      final response = await _api.get('/config');
+      isDemoMode.value = response.data['app_env'] == 'demo';
+      nextResetAt.value = response.data['next_reset_at'] ?? '';
+    } catch (e) {
+      print('Error fetching config: $e');
     }
   }
 

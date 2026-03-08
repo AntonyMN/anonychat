@@ -6,6 +6,15 @@ use App\Http\Controllers\FriendController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Public Config Route
+Route::get('/config', function () {
+    return response()->json([
+        'app_env' => config('app.env'),
+        'timezone' => config('app.timezone'),
+        'next_reset_at' => now('Africa/Nairobi')->tomorrow()->startOfDay()->toIso8601String(),
+    ]);
+});
+
 // Auth Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

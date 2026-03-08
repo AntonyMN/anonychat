@@ -8,6 +8,23 @@ defineProps({
     status: { type: String },
 });
 
+import DemoBanner from '@/Components/DemoBanner.vue';
+import { onMounted, ref } from 'vue';
+import axios from 'axios';
+
+const demoConfig = ref(null);
+
+onMounted(async () => {
+    try {
+        const response = await axios.get('/api/config');
+        if (response.data.app_env === 'demo') {
+            demoConfig.value = response.data;
+        }
+    } catch (e) {
+        console.error('Failed to load demo config');
+    }
+});
+
 const form = useForm({
     username: '',
     password: '',
@@ -23,6 +40,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+        <DemoBanner v-if="demoConfig" :nextResetAt="demoConfig.next_reset_at" />
         <Head title="Sign In — AnonyChat" />
 
         <!-- Header -->

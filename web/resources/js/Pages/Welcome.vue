@@ -5,10 +5,28 @@ defineProps({
     canLogin: Boolean,
     canRegister: Boolean,
 });
+
+import DemoBanner from '@/Components/DemoBanner.vue';
+import { onMounted, ref } from 'vue';
+import axios from 'axios';
+
+const demoConfig = ref(null);
+
+onMounted(async () => {
+    try {
+        const response = await axios.get('/api/config');
+        if (response.data.app_env === 'demo') {
+            demoConfig.value = response.data;
+        }
+    } catch (e) {
+        console.error('Failed to load demo config');
+    }
+});
 </script>
 
 <template>
     <div class="min-h-screen bg-[#0f172a] text-white selection:bg-cyan-500 selection:text-white overflow-hidden relative">
+        <DemoBanner v-if="demoConfig" :nextResetAt="demoConfig.next_reset_at" />
         <Head title="AnonyChat - Express Yourself Freely" />
         <!-- Background Ornaments -->
         <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/20 blur-[120px] rounded-full animate-pulse"></div>
