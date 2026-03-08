@@ -19,6 +19,7 @@ class ChatController extends GetxController {
   
   final ScrollController scrollController = ScrollController();
   final TextEditingController messageController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
 
   Echo? get echo => _home.echo;
 
@@ -26,6 +27,14 @@ class ChatController extends GetxController {
   void onInit() {
     super.onInit();
     activeConversation = Get.arguments as Conversation;
+    
+    // Listen for focus changes to scroll to bottom when keyboard appears
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        _scrollToBottom(delay: 500); // Wait for keyboard animation
+      }
+    });
+
     fetchMessages();
     _setupConversationEcho();
   }
@@ -102,8 +111,8 @@ class ChatController extends GetxController {
     }
   }
 
-  void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 300), () {
+  void _scrollToBottom({int delay = 300}) {
+    Future.delayed(Duration(milliseconds: delay), () {
       if (scrollController.hasClients) {
         scrollController.animateTo(
           scrollController.position.maxScrollExtent,
@@ -112,6 +121,19 @@ class ChatController extends GetxController {
         );
       }
     });
+    
+    // Do it again slightly later just in case the layout takes longer (e.g. keyboard)
+    if (delay > 0) {
+      Future.delayed(Duration(milliseconds: delay + 200), () {
+        if (scrollController.hasClients) {
+          scrollController.animateTo(
+            scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -119,6 +141,7 @@ class ChatController extends GetxController {
     echo?.leave('conversation.${activeConversation.id}');
     scrollController.dispose();
     messageController.dispose();
+    focusNode.dispose();
     super.onClose();
   }
 }

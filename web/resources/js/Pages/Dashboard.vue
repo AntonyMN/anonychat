@@ -199,12 +199,21 @@ watch(activeChat, (newChat, oldChat) => {
                 <div class="p-4 border-b border-slate-200 dark:border-white/5 space-y-4">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-bold dark:text-white">Chats</h2>
-                        <button 
-                            @click="showNewChatModal = true"
-                            class="p-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl transition-colors shadow-lg shadow-cyan-500/20"
-                        >
-                            <i class="bx bx-plus text-xl"></i>
-                        </button>
+                        <div class="flex gap-2">
+                            <a 
+                                href="/anonychat.apk" 
+                                title="Download Mobile App"
+                                class="p-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-xl transition-colors border border-emerald-500/20"
+                            >
+                                <i class="bx bxl-android text-xl"></i>
+                            </a>
+                            <button 
+                                @click="showNewChatModal = true"
+                                class="p-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl transition-colors shadow-lg shadow-cyan-500/20"
+                            >
+                                <i class="bx bx-plus text-xl"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Search Trigger -->

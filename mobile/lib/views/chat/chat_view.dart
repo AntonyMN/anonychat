@@ -14,10 +14,14 @@ class ChatView extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(ChatController());
     final authController = Get.find<AuthController>();
-    final otherUser = controller.activeConversation.users[0];
+    final otherUser = controller.activeConversation.users.firstWhere(
+      (u) => u.id != authController.user.value?.id,
+      orElse: () => controller.activeConversation.users[0],
+    );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF1F5F9), // Slightly different bg for contrast
+      resizeToAvoidBottomInset: true, // Explicitly handle keyboard resizing
       appBar: AppBar(
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.transparent,
@@ -168,12 +172,13 @@ class ChatView extends StatelessWidget {
               ),
               child: TextField(
                 controller: controller.messageController,
-                style: GoogleFonts.inter(color: const Color(0xFF0F172A), fontSize: 14),
+                focusNode: controller.focusNode,
+                style: GoogleFonts.inter(color: const Color(0xFF0F172A), fontSize: 15),
                 decoration: InputDecoration(
                   hintText: 'Type a message...',
-                  hintStyle: GoogleFonts.inter(color: const Color(0xFF94A3B8), fontSize: 14),
+                  hintStyle: GoogleFonts.inter(color: const Color(0xFF94A3B8), fontSize: 15),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 ),
                 onSubmitted: (_) => controller.sendMessage(),
               ),
