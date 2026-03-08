@@ -74,7 +74,14 @@ class FriendController extends Controller
             'status' => 'pending'
         ]);
 
+        // Notify the receiver
+        $receiver = User::find($receiverId);
+        if ($receiver) {
+            $receiver->notify(new \App\Notifications\FriendRequestReceived(Auth::user()));
+        }
+
         broadcast(new \App\Events\FriendRequestSent($friendRequest))->toOthers();
+
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Request sent.', 'friendRequest' => $friendRequest->load('sender')]);
@@ -94,6 +101,12 @@ class FriendController extends Controller
         // Create bidirectional friendship
         Friend::create(['user_id' => $friendRequest->sender_id, 'friend_id' => $friendRequest->receiver_id]);
         Friend::create(['user_id' => $friendRequest->receiver_id, 'friend_id' => $friendRequest->sender_id]);
+
+        // Notify the sender that their request was accepted
+        $sender = User::find($friendRequest->sender_id);
+        if ($sender) {
+            $sender->notify(new \App\Notifications\FriendRequestAccepted(Auth::user()));
+        }
 
         if (request()->wantsJson()) {
             return response()->json(['status' => 'success', 'message' => 'Request accepted.']);

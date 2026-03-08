@@ -124,6 +124,12 @@ class ChatController extends Controller
         // Broadcast event
         broadcast(new MessageSent($message))->toOthers();
 
+        // Notify other users via push
+        $otherUsers = $conversation->users()->where('users.id', '!=', Auth::id())->get();
+        foreach ($otherUsers as $recipient) {
+            $recipient->notify(new \App\Notifications\NewMessageReceived($message));
+        }
+
         return response()->json($message->load(['sender', 'attachments']));
     }
 

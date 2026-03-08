@@ -26,6 +26,7 @@ class User extends Authenticatable
         'profile_image',
         'status',
         'last_seen',
+        'fcm_token',
     ];
 
     /**

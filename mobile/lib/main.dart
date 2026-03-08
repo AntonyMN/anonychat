@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'routes/app_pages.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'services/notification_service.dart';
 import 'services/api_service.dart';
 import 'controllers/auth_controller.dart';
+import 'routes/app_pages.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   await GetStorage.init();
   
   // Initialize services
   final apiService = await Get.putAsync(() => ApiService().init());
+  final notificationService = await Get.putAsync(() => NotificationService().init());
   Get.put(AuthController());
 
   runApp(const MyApp());

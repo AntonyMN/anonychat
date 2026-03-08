@@ -31,4 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/friends/request/{friendRequest}/accept', [FriendController::class, 'acceptRequest']);
     Route::post('/friends/request/{friendRequest}/decline', [FriendController::class, 'declineRequest']);
     Route::post('/friends/{friend}/alias', [FriendController::class, 'setAlias']);
+
+    // Notifications
+    Route::post('/fcm-token', [\App\Http\Controllers\Api\NotificationController::class, 'registerToken']);
 });

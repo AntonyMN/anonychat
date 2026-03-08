@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "581616971985",
+    "project_id": "orelle-chat",
+    "storage_bucket": "orelle-chat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581616971985:android:5df54a3886d96eb71055f0",
+        "android_client_info": {
+          "package_name": "com.anonychat.anonychat_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuJihTbT11-6i3nm1oblzDdLd3YR7itMY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

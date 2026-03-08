@@ -1,0 +1,6 @@
+nohup: ignoring input
+
+   INFO  Starting server on 0.0.0.0:8080 (127.0.0.1).  
+
+   INFO  Gracefully terminating connections.  
+

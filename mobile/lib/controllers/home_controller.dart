@@ -49,14 +49,18 @@ class HomeController extends GetxController {
 
   void _setupEcho() {
     final token = _auth.storage.read('auth_token');
-    if (token == null) return;
+    if (token == null) {
+      print('Echo Setup: Missing auth token');
+      return;
+    }
+
+    print('Echo Setup: Initializing with host chat.orellepos.com');
 
     PusherOptions options = PusherOptions(
       host: 'chat.orellepos.com',
       wsPort: 443,
       wssPort: 443,
       encrypted: true,
-      cluster: 'mt1',
       auth: PusherAuth(
         'https://chat.orellepos.com/api/broadcasting/auth',
         headers: {
