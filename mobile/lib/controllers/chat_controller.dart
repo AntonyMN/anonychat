@@ -46,7 +46,15 @@ class ChatController extends GetxController {
   }
 
   void _setupConversationEcho() {
-    if (echo == null) return;
+    if (echo == null) {
+      // If echo is not ready yet (e.g. just logged in), 
+      // it should be handled via the HomeController switch.
+      // But we can also try to get it again here if needed.
+      Future.delayed(const Duration(seconds: 1), () {
+        if (echo != null) _setupConversationEcho();
+      });
+      return;
+    }
 
     echo!.private('conversation.${activeConversation.id}')
         .listen('MessageSent', (e) {

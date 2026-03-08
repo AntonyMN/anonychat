@@ -20,8 +20,25 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchDashboard();
-    _setupEcho();
+    
+    // Listen to user changes to setup/teardown Echo
+    ever(_auth.user, (user) {
+      if (user != null) {
+        setupEcho();
+        fetchDashboard();
+      } else {
+        echo?.disconnect();
+        echo = null;
+        conversations.clear();
+        friendRequests.clear();
+        friends.clear();
+      }
+    });
+
+    if (_auth.isLoggedIn) {
+      setupEcho();
+      fetchDashboard();
+    }
   }
 
   Future<void> fetchDashboard() async {
@@ -47,7 +64,7 @@ class HomeController extends GetxController {
     }
   }
 
-  void _setupEcho() {
+  void setupEcho() {
     final token = _auth.storage.read('auth_token');
     if (token == null) {
       print('Echo Setup: Missing auth token');
@@ -70,7 +87,8 @@ class HomeController extends GetxController {
       ),
     );
 
-    PusherClient pusher = PusherClient('anonychat-key', options, autoConnect: true, enableLogging: true);
+    // Use the correct Reverb key from .env: 9hnxdlgeeojuxglm2xxv
+    PusherClient pusher = PusherClient('9hnxdlgeeojuxglm2xxv', options, autoConnect: true, enableLogging: true);
 
     echo = Echo(
       broadcaster: EchoBroadcasterType.Pusher,

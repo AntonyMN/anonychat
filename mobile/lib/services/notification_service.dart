@@ -11,7 +11,7 @@ class NotificationService extends GetxService {
   final ApiService _api = Get.find<ApiService>();
 
   Future<NotificationService> init() async {
-    // Initialize local notifications
+    // ... initialization code
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosSettings = DarwinInitializationSettings();
     const InitializationSettings initSettings = InitializationSettings(android: androidSettings, iOS: iosSettings);
@@ -28,16 +28,30 @@ class NotificationService extends GetxService {
       sound: true,
     );
 
-    // Get FCM token
-    String? token = await _fcm.getToken();
-    if (token != null) {
-      print("FCM Token: $token");
-      await _registerToken(token);
+    // Get auth controller to listen for login
+    final auth = Get.find<AuthController>();
+    ever(auth.user, (user) async {
+      if (user != null) {
+        String? token = await _fcm.getToken();
+        if (token != null) {
+          print("FCM Token: $token");
+          await _registerToken(token);
+        }
+      }
+    });
+
+    if (auth.isLoggedIn) {
+      String? token = await _fcm.getToken();
+      if (token != null) {
+        _registerToken(token);
+      }
     }
 
     // Refresh token listener
     _fcm.onTokenRefresh.listen((newToken) async {
-      await _registerToken(newToken);
+      if (auth.isLoggedIn) {
+        await _registerToken(newToken);
+      }
     });
 
     // Handle incoming messages
