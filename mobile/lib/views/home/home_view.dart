@@ -47,9 +47,37 @@ class HomeView extends StatelessWidget {
             onPressed: () => _showSearchDialog(context),
             icon: const Icon(Boxicons.bx_search, color: Color(0xFF64748B)),
           ),
-          IconButton(
-            onPressed: () => authController.logout(),
-            icon: const Icon(Boxicons.bx_log_out, color: Color(0xFF64748B)),
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'profile') {
+                Get.toNamed('/profile');
+              } else if (value == 'logout') {
+                authController.logout();
+              }
+            },
+            icon: const Icon(Boxicons.bx_dots_vertical_rounded, color: Color(0xFF64748B)),
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    const Icon(Boxicons.bx_user, size: 18, color: Color(0xFF64748B)),
+                    const SizedBox(width: 10),
+                    Text('Profile', style: GoogleFonts.inter(fontSize: 14)),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    const Icon(Boxicons.bx_log_out, size: 18, color: Color(0xFFEF4444)),
+                    const SizedBox(width: 10),
+                    Text('Logout', style: GoogleFonts.inter(fontSize: 14, color: const Color(0xFFEF4444))),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -330,10 +358,7 @@ class HomeView extends StatelessWidget {
                             ),
                             title: Text(user.username,
                                 style: GoogleFonts.inter(color: const Color(0xFF0F172A), fontWeight: FontWeight.w500)),
-                            trailing: IconButton(
-                              onPressed: () => searchController.sendFriendRequest(user.id),
-                              icon: const Icon(Boxicons.bx_user_plus, color: Color(0xFF06B6D4)),
-                            ),
+                            trailing: _buildSearchAction(user, searchController, context),
                           );
                         },
                       )),
@@ -343,5 +368,45 @@ class HomeView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildSearchAction(dynamic user, UserSearchController searchController, BuildContext context) {
+    if (user.isFriend) {
+      return IconButton(
+        onPressed: () {
+          Get.back(); // Close dialog
+          _startConversation(user.id);
+        },
+        icon: const Icon(Boxicons.bx_message_rounded_dots, color: Color(0xFF06B6D4)),
+        tooltip: 'Start Chat',
+      );
+    }
+
+    if (user.requestSent) {
+      return const Text('Pending', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 12));
+    }
+
+    if (user.requestReceived) {
+      return const Text('Check Requests', style: TextStyle(color: Color(0xFF06B6D4), fontSize: 12));
+    }
+
+    return IconButton(
+      onPressed: () => searchController.sendFriendRequest(user.id),
+      icon: const Icon(Boxicons.bx_user_plus, color: Color(0xFF06B6D4)),
+      tooltip: 'Add Friend',
+    );
+  }
+
+  void _startConversation(int userId) async {
+    final homeController = Get.find<HomeController>();
+    try {
+      final response = await Get.find<ApiService>().post('/conversations/start', data: {'user_id': userId});
+      final conv = Conversation.fromJson(response.data);
+      Get.toNamed('/chat', arguments: conv);
+      homeController.fetchDashboard(); // Refresh chat list
+    } catch (e) {
+      print('Start conversation error: $e');
+      Get.snackbar('Error', 'Failed to start conversation.');
+    }
   }
 }

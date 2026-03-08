@@ -5,7 +5,7 @@ class Message {
   final int conversationId;
   final int senderId;
   final String content;
-  final String type;
+  final String? filePath;
   final DateTime? readAt;
   final DateTime createdAt;
   final User? sender;
@@ -17,6 +17,7 @@ class Message {
     required this.senderId,
     required this.content,
     required this.type,
+    this.filePath,
     this.readAt,
     required this.createdAt,
     this.sender,
@@ -30,6 +31,7 @@ class Message {
       senderId: json['sender_id'],
       content: json['content'] ?? '',
       type: json['type'],
+      filePath: json['file_path'],
       readAt: json['read_at'] != null ? DateTime.parse(json['read_at']) : null,
       createdAt: DateTime.parse(json['created_at']),
       sender: json['sender'] != null ? User.fromJson(json['sender']) : null,

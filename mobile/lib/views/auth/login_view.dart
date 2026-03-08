@@ -12,7 +12,7 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final _usernameController = TextEditingController();
+  final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authController = Get.find<AuthController>();
 
@@ -67,8 +67,8 @@ class _LoginViewState extends State<LoginView> {
                 ),
                 const SizedBox(height: 40),
                 _buildTextField(
-                  controller: _usernameController,
-                  hint: 'Username',
+                  controller: _loginController,
+                  hint: 'Email or Username',
                   icon: Boxicons.bx_user,
                 ),
                 const SizedBox(height: 14),
@@ -84,7 +84,7 @@ class _LoginViewState extends State<LoginView> {
                       ? null
                       : () async {
                           final success = await _authController.login(
-                            _usernameController.text,
+                            _loginController.text,
                             _passwordController.text,
                           );
                           if (success) Get.offAllNamed('/home');

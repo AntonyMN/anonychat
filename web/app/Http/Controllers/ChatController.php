@@ -69,30 +69,28 @@ class ChatController extends Controller
 
     public function start(Request $request)
     {
-        $request->validate(['user_id' => 'required|exists:users,id']);
-        $otherUserId = $request->user_id;
-        $authUserId = Auth::id();
+        $request->validate([
+            'user_id' => 'required|exists:users,id'
+        ]);
 
-        // Check if private conversation already exists
-        $conversation = Conversation::where('type', 'private')
-            ->whereHas('users', function ($q) use ($authUserId) {
-                $q->where('users.id', $authUserId);
-            })
-            ->whereHas('users', function ($q) use ($otherUserId) {
-                $q->where('users.id', $otherUserId);
-            })
-            ->first();
+        $participantIds = [Auth::id(), $request->user_id];
+        sort($participantIds);
+
+        // Find or create conversation
+        $conversation = Conversation::whereHas('users', function ($query) use ($participantIds) {
+            $query->whereIn('users.id', $participantIds);
+        }, '=', 2)->first();
 
         if (!$conversation) {
-            $conversation = Conversation::create(['type' => 'private']);
-            $conversation->users()->attach([$authUserId, $otherUserId]);
+            $conversation = Conversation::create();
+            $conversation->users()->attach($participantIds);
         }
 
-        if (request()->wantsJson()) {
-            return response()->json($conversation->load(['users', 'lastMessage']));
+        if ($request->wantsJson()) {
+            return response()->json($conversation->load('users', 'messages'));
         }
 
-        return redirect()->route('dashboard', ['chat' => $conversation->id]);
+        return redirect()->route('chat.show', $conversation->id);
     }
 
     public function sendMessage(Request $request, Conversation $conversation)
@@ -100,29 +98,29 @@ class ChatController extends Controller
         $this->authorizeUserInConversation($conversation);
 
         $request->validate([
-            'content' => 'required_without:attachments|string|nullable',
-            'attachments.*' => 'nullable|file|max:10240', // 10MB
+            'content' => 'nullable|string',
+            'file' => 'nullable|file|max:10240', // 10MB max
         ]);
+
+        $type = 'text';
+        $filePath = null;
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $mime = $file->getMimeType();
+            $type = str_starts_with($mime, 'image/') ? 'image' : 'file';
+            $filePath = $file->store('chat_attachments', 'public');
+        }
 
         $message = $conversation->messages()->create([
             'sender_id' => Auth::id(),
-            'content' => $request->content,
-            'type' => $request->hasFile('attachments') ? 'file' : 'text',
+            'content' => $request->content ?? '',
+            'type' => $type,
+            'file_path' => $filePath,
         ]);
 
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $path = $file->store('attachments', 'public');
-                $message->attachments()->create([
-                    'file_path' => $path,
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_type' => $file->getClientMimeType(),
-                ]);
-            }
-        }
-
         // Broadcast event
-        broadcast(new MessageSent($message))->toOthers();
+        broadcast(new \App\Events\MessageSent($message))->toOthers();
 
         // Notify other users via push
         $otherUsers = $conversation->users()->where('users.id', '!=', Auth::id())->get();
@@ -130,7 +128,7 @@ class ChatController extends Controller
             $recipient->notify(new \App\Notifications\NewMessageReceived($message));
         }
 
-        return response()->json($message->load(['sender', 'attachments']));
+        return response()->json($message->load(['sender']));
     }
 
     protected function authorizeUserInConversation(Conversation $conversation)

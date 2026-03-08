@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProfileController as ApiProfileController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendController;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ Route::get('/config', function () {
 // Auth Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/check-uniqueness', [AuthController::class, 'checkUniqueness']);
 
 // Broadcasting auth for API/Mobile
 use Illuminate\Support\Facades\Broadcast;
@@ -26,6 +28,7 @@ Broadcast::routes(['middleware' => ['auth:sanctum']]);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/profile/update', [ApiProfileController::class, 'update']);
 
     // Dashboard & Conversations
     Route::get('/dashboard', [ChatController::class, 'dashboard']);

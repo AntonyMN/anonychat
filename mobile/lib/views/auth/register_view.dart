@@ -74,7 +74,7 @@ class _RegisterViewState extends State<RegisterView> {
                 const SizedBox(height: 14),
                 _buildTextField(
                   controller: _emailController,
-                  hint: 'Email (Optional)',
+                  hint: 'Email Address',
                   icon: Boxicons.bx_envelope,
                 ),
                 const SizedBox(height: 14),
@@ -89,10 +89,14 @@ class _RegisterViewState extends State<RegisterView> {
                   onPressed: _authController.isLoading.value
                       ? null
                       : () async {
+                          if (_usernameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
+                            Get.snackbar('Error', 'All fields are required');
+                            return;
+                          }
                           final success = await _authController.register(
                             _usernameController.text,
+                            _emailController.text,
                             _passwordController.text,
-                            email: _emailController.text.isNotEmpty ? _emailController.text : null,
                           );
                           if (success) Get.offAllNamed('/home');
                         },

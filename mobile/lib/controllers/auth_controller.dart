@@ -25,11 +25,11 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<bool> login(String username, String password) async {
+  Future<bool> login(String login, String password) async {
     isLoading.value = true;
     try {
       final response = await _api.post('/login', data: {
-        'username': username,
+        'login': login,
         'password': password,
       });
 
@@ -49,7 +49,7 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<bool> register(String username, String password, {String? email}) async {
+  Future<bool> register(String username, String email, String password) async {
     isLoading.value = true;
     try {
       final response = await _api.post('/register', data: {
@@ -72,6 +72,12 @@ class AuthController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> updateUser(Map<String, dynamic> userData) async {
+    final newUser = User.fromJson(userData);
+    await storage.write('user_data', userData);
+    user.value = newUser;
   }
 
   Future<void> logout() async {

@@ -26,7 +26,7 @@ onMounted(async () => {
 });
 
 const form = useForm({
-    username: '',
+    login: '',
     password: '',
     remember: false,
 });
@@ -56,21 +56,21 @@ const submit = () => {
         <form @submit.prevent="submit" class="space-y-4">
             <!-- Username -->
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1.5" for="username">Username</label>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5" for="login">Email or Username</label>
                 <div class="relative">
                     <i class="bx bx-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-lg"></i>
                     <input
-                        id="username"
+                        id="login"
                         type="text"
-                        v-model="form.username"
+                        v-model="form.login"
                         required
                         autofocus
                         autocomplete="username"
-                        placeholder="your_username"
+                        placeholder="your_email_or_username"
                         class="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:bg-white/10 transition-all"
                     />
                 </div>
-                <InputError class="mt-1.5 text-red-400 text-xs" :message="form.errors.username" />
+                <InputError class="mt-1.5 text-red-400 text-xs" :message="form.errors.login" />
             </div>
 
             <!-- Password -->

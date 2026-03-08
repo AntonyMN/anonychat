@@ -14,8 +14,8 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'username' => 'required|string|unique:users|max:255',
-            'email' => 'nullable|email|unique:users|max:255',
+            'username' => 'required|string|unique:users|max:255|regex:/^[a-zA-Z0-0_]+$/',
+            'email' => 'required|email|unique:users|max:255',
             'password' => 'required|string|min:8',
         ]);
 
@@ -37,17 +37,20 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required|string',
+            'login' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($request->only('username', 'password'))) {
+        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        if (!Auth::attempt([$loginType => $request->login, 'password' => $request->password])) {
             throw ValidationException::withMessages([
-                'username' => ['Invalid credentials.'],
+                'login' => ['Invalid credentials.'],
             ]);
         }
 
-        $user = User::where('username', $request->username)->firstOrFail();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -69,5 +72,25 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return response()->json($request->user());
+    }
+
+    public function checkUniqueness(Request $request)
+    {
+        $request->validate([
+            'username' => 'nullable|string',
+            'email' => 'nullable|email',
+        ]);
+
+        if ($request->has('username')) {
+            $exists = User::where('username', $request->username)->exists();
+            return response()->json(['available' => !$exists]);
+        }
+
+        if ($request->has('email')) {
+            $exists = User::where('email', $request->email)->exists();
+            return response()->json(['available' => !$exists]);
+        }
+
+        return response()->json(['error' => 'Missing username or email parameter'], 400);
     }
 }

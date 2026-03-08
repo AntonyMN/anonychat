@@ -26,7 +26,40 @@ const form = useForm({
     password_confirmation: '',
 });
 
+const emailAvailable = ref(true);
+const usernameAvailable = ref(true);
+const checkingEmail = ref(false);
+const checkingUsername = ref(false);
+
+const checkUniqueness = async (field, value) => {
+    if (!value) return;
+    if (field === 'email') checkingEmail.value = true;
+    else checkingUsername.value = true;
+
+    try {
+        const response = await axios.get('/api/check-uniqueness', {
+            params: { [field]: value }
+        });
+        if (field === 'email') emailAvailable.value = response.data.available;
+        else usernameAvailable.value = response.data.available;
+    } catch (e) {
+        console.error('Uniqueness check failed');
+    } finally {
+        if (field === 'email') checkingEmail.value = false;
+        else checkingUsername.value = false;
+    }
+};
+
+let debounceTimeout = null;
+const debouncedCheck = (field, value) => {
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(() => {
+        checkUniqueness(field, value);
+    }, 500);
+};
+
 const submit = () => {
+    if (!emailAvailable.value || !usernameAvailable.value) return;
     form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
@@ -54,20 +87,24 @@ const submit = () => {
                         id="username"
                         type="text"
                         v-model="form.username"
+                        @input="debouncedCheck('username', form.username)"
                         required
                         autofocus
                         autocomplete="username"
                         placeholder="choose_a_username"
+                        :class="{'border-red-500': !usernameAvailable}"
                         class="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all"
                     />
                 </div>
+                <div v-if="!usernameAvailable && !checkingUsername" class="mt-1 text-red-500 text-xs">This username is already taken.</div>
+                <div v-if="checkingUsername" class="mt-1 text-slate-500 text-xs">Checking availability...</div>
                 <InputError class="mt-1.5 text-red-400 text-xs" :message="form.errors.username" />
             </div>
 
             <!-- Email (Optional) -->
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-1.5" for="email">
-                    Email <span class="text-slate-500 font-normal">(optional)</span>
+                    Email Address
                 </label>
                 <div class="relative">
                     <i class="bx bx-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-lg"></i>
@@ -75,11 +112,16 @@ const submit = () => {
                         id="email"
                         type="email"
                         v-model="form.email"
+                        @input="debouncedCheck('email', form.email)"
+                        required
                         autocomplete="email"
                         placeholder="you@example.com"
+                        :class="{'border-red-500': !emailAvailable}"
                         class="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:bg-white/10 transition-all"
                     />
                 </div>
+                <div v-if="!emailAvailable && !checkingEmail" class="mt-1 text-red-500 text-xs">This email is already registered.</div>
+                <div v-if="checkingEmail" class="mt-1 text-slate-500 text-xs">Checking availability...</div>
                 <InputError class="mt-1.5 text-red-400 text-xs" :message="form.errors.email" />
             </div>
 

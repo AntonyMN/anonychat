@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:dio/dio.dart' as dio;
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:laravel_echo/laravel_echo.dart';
@@ -15,8 +18,10 @@ class ChatController extends GetxController {
 
   var messages = <Message>[].obs;
   var isLoading = false.obs;
+  var isSending = false.obs;
   late Conversation activeConversation;
   
+  final ImagePicker _picker = ImagePicker();
   final ScrollController scrollController = ScrollController();
   final TextEditingController messageController = TextEditingController();
   final FocusNode focusNode = FocusNode();
@@ -82,24 +87,42 @@ class ChatController extends GetxController {
         });
   }
 
-  Future<void> sendMessage() async {
-    if (messageController.text.trim().isEmpty) return;
+  Future<void> sendMessage({String? content, File? file}) async {
+    if ((content == null || content.trim().isEmpty) && file == null) return;
 
-    final content = messageController.text;
-    messageController.clear();
-
+    isSending.value = true;
     try {
-      final response = await _api.post('/chat/${activeConversation.id}/message', data: {
-        'content': content,
-      });
+      dynamic data;
+      if (file != null) {
+        String fileName = file.path.split('/').last;
+        data = dio.FormData.fromMap({
+          'content': content ?? '',
+          'file': await dio.MultipartFile.fromFile(file.path, filename: fileName),
+        });
+      } else {
+        data = {'content': content};
+      }
+
+      final response = await _api.post('/chat/${activeConversation.id}/message', data: data);
 
       final msg = Message.fromJson(response.data);
       messages.add(msg);
       messages.refresh();
       _scrollToBottom();
       _home.fetchDashboard(); // Refresh last message in sidebar
+      messageController.clear();
     } catch (e) {
+      print('Send message error: $e');
       Get.snackbar('Error', 'Failed to send message.');
+    } finally {
+      isSending.value = false;
+    }
+  }
+
+  Future<void> pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery, imageQuality: 70);
+    if (image != null) {
+      await sendMessage(file: File(image.path));
     }
   }
 

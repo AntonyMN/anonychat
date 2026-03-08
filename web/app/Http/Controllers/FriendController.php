@@ -49,11 +49,17 @@ class FriendController extends Controller
         $receiverId = $request->receiver_id;
 
         if ($senderId == $receiverId) {
+            if (request()->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'You cannot friend yourself.'], 422);
+            }
             return back()->withErrors(['message' => 'You cannot friend yourself.']);
         }
 
         // Check if already friends
         if (Friend::where('user_id', $senderId)->where('friend_id', $receiverId)->exists()) {
+            if (request()->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Already friends.'], 422);
+            }
             return back()->withErrors(['message' => 'Already friends.']);
         }
 
@@ -65,6 +71,9 @@ class FriendController extends Controller
         })->first();
 
         if ($existing) {
+            if (request()->wantsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Request already pending.'], 422);
+            }
             return back()->withErrors(['message' => 'Request already pending.']);
         }
 

@@ -82,7 +82,12 @@ class ChatView extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final msg = controller.messages[index];
                       final isMe = msg.senderId == authController.user.value!.id;
-                      return _buildMessageBubble(msg, isMe);
+                      return Column(
+                        children: [
+                          _buildMessageBubble(msg, isMe),
+                          const SizedBox(height: 10),
+                        ],
+                      );
                     },
                   )),
           ),
@@ -120,14 +125,33 @@ class ChatView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              msg.content,
-              style: GoogleFonts.inter(
-                color: isMe ? Colors.white : const Color(0xFF0F172A),
-                fontSize: 14,
-                height: 1.4,
+            if (msg.type == 'image' && msg.filePath != null) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  'https://chat.orellepos.com/storage/${msg.filePath}',
+                  fit: BoxFit.cover,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const SizedBox(
+                      height: 150,
+                      width: 200,
+                      child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                    );
+                  },
+                ),
               ),
-            ),
+              if (msg.content.isNotEmpty) const SizedBox(height: 8),
+            ],
+            if (msg.content.isNotEmpty)
+              Text(
+                msg.content,
+                style: GoogleFonts.inter(
+                  color: isMe ? Colors.white : const Color(0xFF0F172A),
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+              ),
             const SizedBox(height: 4),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -180,22 +204,32 @@ class ChatView extends StatelessWidget {
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
                 ),
-                onSubmitted: (_) => controller.sendMessage(),
+                onSubmitted: (_) => controller.sendMessage(content: controller.messageController.text),
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: () => controller.pickImage(),
+            icon: const Icon(Boxicons.bx_image_add, color: Color(0xFF64748B)),
+          ),
+          const SizedBox(width: 4),
           GestureDetector(
-            onTap: () => controller.sendMessage(),
-            child: Container(
+            onTap: () => controller.sendMessage(content: controller.messageController.text),
+            child: Obx(() => Container(
               width: 46,
               height: 46,
               decoration: const BoxDecoration(
                 color: Color(0xFF06B6D4),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Boxicons.bx_paper_plane, color: Colors.white, size: 20),
-            ),
+              child: controller.isSending.value
+                  ? const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                    )
+                  : const Icon(Boxicons.bx_paper_plane, color: Colors.white, size: 20),
+            )),
           ),
         ],
       ),
