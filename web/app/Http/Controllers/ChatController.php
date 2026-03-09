@@ -95,6 +95,7 @@ class ChatController extends Controller
 
     public function sendMessage(Request $request, Conversation $conversation)
     {
+        \Log::info('sendMessage started', ['conversation' => $conversation->id, 'user' => Auth::id()]);
         $this->authorizeUserInConversation($conversation);
 
         $request->validate([
@@ -112,6 +113,7 @@ class ChatController extends Controller
             $filePath = $file->store('chat_attachments', 'public');
         }
 
+        \Log::info('Creating message record');
         $message = $conversation->messages()->create([
             'sender_id' => Auth::id(),
             'content' => $request->content ?? '',
@@ -119,15 +121,26 @@ class ChatController extends Controller
             'file_path' => $filePath,
         ]);
 
-        // Broadcast event
-        broadcast(new \App\Events\MessageSent($message))->toOthers();
-
-        // Notify other users via push
-        $otherUsers = $conversation->users()->where('users.id', '!=', Auth::id())->get();
-        foreach ($otherUsers as $recipient) {
-            $recipient->notify(new \App\Notifications\NewMessageReceived($message));
+        \Log::info('Broadcasting message');
+        try {
+            // Broadcast event
+            broadcast(new \App\Events\MessageSent($message))->toOthers();
+        } catch (\Exception $e) {
+            \Log::error('Broadcast failed: ' . $e->getMessage());
         }
 
+        \Log::info('Sending notifications');
+        try {
+            // Notify other users via push
+            $otherUsers = $conversation->users()->where('users.id', '!=', Auth::id())->get();
+            foreach ($otherUsers as $recipient) {
+                $recipient->notify(new \App\Notifications\NewMessageReceived($message));
+            }
+        } catch (\Exception $e) {
+            \Log::error('Notification failed: ' . $e->getMessage());
+        }
+
+        \Log::info('sendMessage completed');
         return response()->json($message->load(['sender']));
     }
 
