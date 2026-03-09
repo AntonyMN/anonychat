@@ -95,8 +95,19 @@ class ChatController extends Controller
 
     public function sendMessage(Request $request, Conversation $conversation)
     {
-        \Log::info('sendMessage started', ['conversation' => $conversation->id, 'user' => Auth::id()]);
-        $this->authorizeUserInConversation($conversation);
+        \Log::info('sendMessage method reached', [
+            'conversation_id' => $conversation->id,
+            'user_id' => Auth::id(),
+            'has_content' => !empty($request->content),
+            'has_file' => $request->hasFile('file')
+        ]);
+
+        try {
+            $this->authorizeUserInConversation($conversation);
+        } catch (\Throwable $e) {
+            \Log::error('Authorization failed: ' . $e->getMessage());
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
 
         $request->validate([
             'content' => 'nullable|string',
@@ -114,19 +125,24 @@ class ChatController extends Controller
         }
 
         \Log::info('Creating message record');
-        $message = $conversation->messages()->create([
-            'sender_id' => Auth::id(),
-            'content' => $request->content ?? '',
-            'type' => $type,
-            'file_path' => $filePath,
-        ]);
+        try {
+            $message = $conversation->messages()->create([
+                'sender_id' => Auth::id(),
+                'content' => $request->content ?? '',
+                'type' => $type,
+                'file_path' => $filePath,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Message creation failed: ' . $e->getMessage());
+            throw $e; // Re-throw to see the 500
+        }
 
         \Log::info('Broadcasting message');
         try {
             // Broadcast event
             broadcast(new \App\Events\MessageSent($message))->toOthers();
-        } catch (\Exception $e) {
-            \Log::error('Broadcast failed: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Broadcast failed: ' . $e->getMessage() . '\n' . $e->getTraceAsString());
         }
 
         \Log::info('Sending notifications');
@@ -136,8 +152,8 @@ class ChatController extends Controller
             foreach ($otherUsers as $recipient) {
                 $recipient->notify(new \App\Notifications\NewMessageReceived($message));
             }
-        } catch (\Exception $e) {
-            \Log::error('Notification failed: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Notification failed: ' . $e->getMessage() . '\n' . $e->getTraceAsString());
         }
 
         \Log::info('sendMessage completed');
