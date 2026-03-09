@@ -9,6 +9,7 @@ const props = defineProps({
     conversations: Array,
     friendRequests: Array,
     friends: Array,
+    activeChatId: [String, Number],
 });
 
 const user = usePage().props.auth.user;
@@ -136,14 +137,6 @@ const handleFileChange = (e) => {
 
 // Real-time listener
 onMounted(() => {
-    // Check if there's a chat ID in the URL to select
-    const urlParams = new URLSearchParams(window.location.search);
-    const chatId = urlParams.get('chat');
-    if (chatId) {
-        const conv = props.conversations.find(c => c.id == chatId);
-        if (conv) selectChat(conv);
-    }
-
     // Global notifications listener
     if (window.Echo) {
         window.Echo.private(`notifications.${user.id}`)
@@ -186,6 +179,14 @@ watch(activeChat, (newChat, oldChat) => {
                     }
                 });
             });
+    }
+}, { immediate: true });
+
+// Watch for activeChatId prop from Inertia
+watch(() => props.activeChatId, (newId) => {
+    if (newId) {
+        const conv = props.conversations.find(c => c.id == newId);
+        if (conv) selectChat(conv);
     }
 }, { immediate: true });
 </script>

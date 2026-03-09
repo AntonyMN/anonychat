@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Events\MessageSent;
 use App\Events\MessageRead;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
@@ -49,6 +51,7 @@ class ChatController extends Controller
             'conversations' => $conversations,
             'friendRequests' => $friendRequests,
             'friends' => $friends,
+            'activeChatId' => request('chat'),
         ]);
     }
 
@@ -90,7 +93,7 @@ class ChatController extends Controller
             return response()->json($conversation->load('users', 'messages'));
         }
 
-        return redirect()->route('chat.show', $conversation->id);
+        return redirect()->route('dashboard', ['chat' => $conversation->id]);
     }
 
     public function sendMessage(Request $request, Conversation $conversation)
