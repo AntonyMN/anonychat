@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_boxicons/flutter_boxicons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../services/api_service.dart';
 import '../../controllers/chat_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../models/chat.model.dart';
