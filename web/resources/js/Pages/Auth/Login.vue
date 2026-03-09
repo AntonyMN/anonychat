@@ -53,6 +53,10 @@ const submit = () => {
             {{ status }}
         </div>
 
+        <div v-if="form.errors.login" class="mb-6 text-sm font-medium text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+            {{ form.errors.login }}
+        </div>
+
         <form @submit.prevent="submit" class="space-y-4">
             <!-- Username -->
             <div>

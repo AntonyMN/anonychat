@@ -31,7 +31,14 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        try {
+            $request->session()->regenerate();
+        } catch (\Exception $e) {
+            \Log::error('Session regeneration failed during login: ' . $e->getMessage(), [
+                'user_id' => Auth::id(),
+                'exception' => $e
+            ]);
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
