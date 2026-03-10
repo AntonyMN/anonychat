@@ -40,9 +40,10 @@ jobs:
             php artisan view:cache
             php artisan event:cache
 
-            # Restart queue and Reverb
-            php artisan queue:restart
-            supervisorctl restart reverb 2>/dev/null || true
+            # Restart queue and Reverb using Supervisor
+            # Note: Ensure supervisor is installed and these programs are configured on the server
+            sudo supervisorctl restart reverb 2>/dev/null || true
+            sudo supervisorctl restart anonychat-worker:* 2>/dev/null || true
 
             # Fix permissions
             chown -R www-data:www-data /var/www/anonychat/web/storage
