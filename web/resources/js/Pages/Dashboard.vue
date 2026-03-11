@@ -174,6 +174,9 @@ onMounted(() => {
                         unreadConversations.value.add(conv.id);
                     }
                 }
+            })
+            .listen('.MessageRead', (e) => {
+                unreadConversations.value.delete(e.conversationId);
             });
 
         // Presence listener

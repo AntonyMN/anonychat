@@ -25,9 +25,19 @@ class MessageRead implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
-        return [
+        $channels = [
             new PrivateChannel('conversation.' . $this->conversationId),
         ];
+
+        // Also broadcast to notification channels for sidebar unread badge updates
+        $conversation = \App\Models\Conversation::find($this->conversationId);
+        if ($conversation) {
+            foreach ($conversation->users as $user) {
+                $channels[] = new PrivateChannel('notifications.' . $user->id);
+            }
+        }
+
+        return $channels;
     }
 
     public function broadcastAs(): string
