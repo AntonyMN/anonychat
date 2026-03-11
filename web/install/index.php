@@ -56,6 +56,41 @@ function check_requirements() {
     return $requirements;
 }
 
+// AJAX Handler for background tasks
+if (isset($_GET['action']) && $_GET['action'] === 'execute') {
+    header('Content-Type: application/json');
+    $task = isset($_GET['task']) ? $_GET['task'] : '';
+    
+    $commands = [
+        'composer' => "composer install --no-dev --optimize-autoloader",
+        'npm_install' => "npm install --legacy-peer-deps",
+        'npm_build' => "npm run build",
+        'key_generate' => "php artisan key:generate",
+        'migrate' => "php artisan migrate --force"
+    ];
+
+    if (!isset($commands[$task])) {
+        echo json_encode(['success' => false, 'output' => 'Invalid task.']);
+        exit;
+    }
+
+    // Special check for composer
+    if ($task === 'composer' && is_dir(ROOT_DIR . '/vendor')) {
+        echo json_encode(['success' => true, 'output' => "vendor directory already exists. Skipping composer install.\n"]);
+        exit;
+    }
+
+    // Special check for npm
+    if ($task === 'npm_build' && is_dir(ROOT_DIR . '/public/build')) {
+        echo json_encode(['success' => true, 'output' => "Vite build already exists. Skipping npm build.\n"]);
+        exit;
+    }
+
+    $res = run_command("cd " . ROOT_DIR . " && " . $commands[$task]);
+    echo json_encode($res);
+    exit;
+}
+
 // Logic for handling form submission in Step 3
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 3) {
     $env_data = $_POST['env'];
@@ -73,11 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 3) {
     }
 }
 
-// Logic for Step 4 (Execution)
-if ($step === 4) {
-    // This step might take a while, normally we'd use AJAX but for a simple script we'll just run it.
-    // In a real scenario, we might want to trigger these one by one.
-}
+// Step 4 is now handled by AJAX in the browser
 
 ?>
 <!DOCTYPE html>
@@ -443,39 +474,57 @@ if ($step === 4) {
             <h1>Installing Components</h1>
             <p>We're running migrations and generating keys. This may take a moment.</p>
 
-            <div class="terminal" id="terminal-out">
-Running setup...
-<?php
-    $commands = [
-        'php artisan key:generate',
-        'php artisan migrate --force'
-    ];
-    
-    // Check for composer
-    if (!is_dir(ROOT_DIR . '/vendor')) {
-        echo "> Notice: vendor directory not found. Attempting 'composer install --no-dev'...\n";
-        $res = run_command("cd " . ROOT_DIR . " && composer install --no-dev --optimize-autoloader");
-        echo $res['output'] . "\n";
-    }
+            <div class="terminal" id="terminal-out">Waiting to start...</div>
 
-    foreach ($commands as $cmd) {
-        echo "> " . $cmd . "\n";
-        $res = run_command("cd " . ROOT_DIR . " && " . $cmd);
-        echo $res['output'] . "\n";
-        if (!$res['success']) echo "!! Command failed.\n";
-    }
+            <button id="start-btn" class="btn">Start Installation</button>
+            <a href="?step=5" id="finalize-btn" class="btn" style="display: none;">Finalize Installation</a>
 
-    // Check for npm build
-    if (!is_dir(ROOT_DIR . '/public/build')) {
-        echo "> Notice: Vite build not found. Attempting 'npm install && npm run build'...\n";
-        $res = run_command("cd " . ROOT_DIR . " && npm install && npm run build");
-        echo $res['output'] . "\n";
-    }
-?>
-Done.
-            </div>
+            <script>
+                const terminal = document.getElementById('terminal-out');
+                const startBtn = document.getElementById('start-btn');
+                const finalizeBtn = document.getElementById('finalize-btn');
 
-            <a href="?step=5" class="btn">Finalize Installation</a>
+                const tasks = [
+                    { id: 'composer', name: 'Installing Composer Dependencies' },
+                    { id: 'key_generate', name: 'Generating Application Key' },
+                    { id: 'migrate', name: 'Running Database Migrations' },
+                    { id: 'npm_install', name: 'Installing NPM Dependencies' },
+                    { id: 'npm_build', name: 'Building Frontend Assets' }
+                ];
+
+                async function runTasks() {
+                    startBtn.style.display = 'none';
+                    terminal.innerHTML = "Starting setup...\n";
+
+                    for (const task of tasks) {
+                        terminal.innerHTML += `\n> Running: ${task.name}...\n`;
+                        terminal.scrollTop = terminal.scrollHeight;
+
+                        try {
+                            const response = await fetch(`index.php?action=execute&task=${task.id}`);
+                            const data = await response.json();
+                            
+                            terminal.innerHTML += data.output + "\n";
+                            
+                            if (!data.success) {
+                                terminal.innerHTML += `\n!! Error: ${task.name} failed. Check server logs.\n`;
+                                terminal.scrollTop = terminal.scrollHeight;
+                                return;
+                            }
+                        } catch (e) {
+                            terminal.innerHTML += `\n!! Error: Connection failed.\n`;
+                            return;
+                        }
+                        terminal.scrollTop = terminal.scrollHeight;
+                    }
+
+                    terminal.innerHTML += "\nAll components installed successfully!\n";
+                    finalizeBtn.style.display = 'block';
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+
+                startBtn.addEventListener('click', runTasks);
+            </script>
 
         <?php elseif ($step === 5): ?>
             <h1>Installation Successful!</h1>
@@ -533,9 +582,9 @@ location / {
 
 <script>
     // Simple script to auto-scroll terminal
-    const terminal = document.getElementById('terminal-out');
-    if (terminal) {
-        terminal.scrollTop = terminal.scrollHeight;
+    const termElement = document.getElementById('terminal-out');
+    if (termElement) {
+        termElement.scrollTop = termElement.scrollHeight;
     }
 </script>
 

@@ -212,6 +212,7 @@
                 <a href="#introduction" class="nav-link">Introduction</a>
                 <a href="#prerequisites" class="nav-link">Prerequisites</a>
                 <a href="#installation" class="nav-link">Using the Installer</a>
+                <a href="#manual-setup" class="nav-link">Manual Setup</a>
             </div>
             
             <div class="nav-group">
@@ -303,6 +304,28 @@ sudo chmod -R 775 /var/www/anonychat/bootstrap/cache</code></pre>
                     <p style="font-size: 0.875rem;">Right-click <code>storage</code> and <code>bootstrap/cache</code>, go to Properties > Security, and add <strong>Full Control</strong> for the <code>IIS_IUSRS</code> user.</p>
                 </div>
             </div>
+        </section>
+
+        <section id="manual-setup">
+            <h2>Manual Dependency Setup</h2>
+            <p>If you prefer to set up the dependencies manually or are developing locally, run these commands in the <code>web/</code> directory:</p>
+            <pre><code># Install PHP dependencies
+composer install
+
+# Install Node.js dependencies (use --legacy-peer-deps if conflicts occur)
+npm install --legacy-peer-deps
+
+# Build frontend assets
+npm run build
+
+# Generate application key
+php artisan key:generate</code></pre>
+
+            <h3>Local Development Server</h3>
+            <p>To quickly launch the installation wizard or the application locally without configuring Nginx/Apache/IIS:</p>
+            <pre><code># Start PHP's built-in server
+php -S localhost:8000</code></pre>
+            <p>Then navigate to <code>http://localhost:8000/install/</code> in your browser.</p>
         </section>
 
         <section id="ip-access">
