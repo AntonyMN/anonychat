@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnonyChat Documentation | Installation & Setup Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg-main: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --code-bg: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(to right, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            display: block;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            font-size: 0.9375rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 4rem 6rem;
+            max-width: 1200px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            margin: 3rem 0 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            color: var(--primary-light);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin: 2rem 0 1rem;
+            color: var(--text-main);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-muted);
+            font-size: 1.0625rem;
+        }
+
+        .alert {
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .alert-info { border-color: var(--primary); }
+        .alert-success { border-color: var(--success); }
+        .alert-warning { border-color: var(--warning); }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9375rem;
+            color: #d1d5db;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .os-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .os-linux { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+        .os-windows { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+
+        footer {
+            margin-top: 5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { width: 220px; padding: 1.5rem; }
+            .content { margin-left: 220px; padding: 3rem; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .content { margin-left: 0; padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">AnonyChat Docs</div>
+        
+        <nav>
+            <div class="nav-group">
+                <div class="nav-title">Getting Started</div>
+                <a href="#introduction" class="nav-link">Introduction</a>
+                <a href="#prerequisites" class="nav-link">Prerequisites</a>
+                <a href="#installation" class="nav-link">Using the Installer</a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-title">Deployment</div>
+                <a href="#zip-upload" class="nav-link">Deploying from Zip</a>
+                <a href="#ip-access" class="nav-link">Access via IP Address</a>
+                <a href="#linux-setup" class="nav-link">Linux (Nginx/Apache)</a>
+                <a href="#windows-setup" class="nav-link">Windows (IIS)</a>
+                <a href="#vm-testing" class="nav-link">Testing on Virtual Machines</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-title">Advanced</div>
+                <a href="#websockets" class="nav-link">WebSockets (Reverb)</a>
+                <a href="#post-install" class="nav-link">Post-Installation</a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section id="introduction">
+            <h1>Documentation</h1>
+            <p>Welcome to the AnonyChat technical documentation. This guide will walk you through setting up the application from scratch on various environments.</p>
+            <div class="alert alert-info">
+                <strong>AnonyChat</strong> is a privacy-focused messaging application built with Laravel and real-time WebSockets.
+            </div>
+        </section>
+
+        <section id="prerequisites">
+            <h2>Prerequisites</h2>
+            <p>Before you begin, ensure your server meets the following requirements:</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>Server Software</h3>
+                    <ul style="color: var(--text-muted); padding-left: 1rem;">
+                        <li>PHP 8.2 or higher</li>
+                        <li>MySQL 8.0+ or MariaDB</li>
+                        <li>Composer 2.x</li>
+                        <li>Node.js & NPM (for assets)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>PHP Extensions</h3>
+                    <p style="font-size: 0.875rem;">BCMath, Ctype, Fileinfo, Mbstring, OpenSSL, PDO, Tokenizer, XML, Curl, Dom.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="installation">
+            <h2>Using the Installer Wizard</h2>
+            <p>We've included a standalone installation wizard to automate the heavy lifting.</p>
+            <div class="alert alert-success">
+                <strong>New:</strong> The wizard now supports setup via IP address if you haven't pointed a domain yet.
+            </div>
+            <ol style="color: var(--text-muted); padding-left: 1.5rem; margin-bottom: 1.5rem;">
+                <li>Upload the project to your web server (see <a href="#zip-upload" style="color: var(--primary-light);">Zip Deployment</a> below).</li>
+                <li>Navigate to your domain or IP: <code>http://your-ip-address/install/</code></li>
+                <li>Follow the step-by-step guide to:
+                    <ul style="padding-left: 1rem; margin-top: 0.5rem;">
+                        <li>Check server compatibility.</li>
+                        <li>Configure your database connection.</li>
+                        <li>Setup WebSocket variables (Use the IP address if no domain exists).</li>
+                        <li>Run migrations and generate application keys.</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+
+        <section id="zip-upload">
+            <h2>Deploying from a Zip Archive</h2>
+            <p>If you've received AnonyChat as a <code>.zip</code> or <code>.tar.gz</code> archive, follow these steps to prepare the files:</p>
+            
+            <h3>1. Upload & Extract</h3>
+            <p>Upload the archive to your server's web root (e.g., <code>/var/www/html</code> on Linux or <code>C:\inetpub\wwwroot</code> on Windows).</p>
+            <pre><code># On Linux via SSH:
+unzip anonychat.zip -d /var/www/anonychat</code></pre>
+
+            <h3>2. Set Permissions</h3>
+            <p>The web server needs write access to specific folders to store logs and cache.</p>
+            <div class="grid">
+                <div class="card">
+                    <span class="os-badge os-linux">Linux (Nginx/Apache)</span>
+                    <pre><code>sudo chown -R www-data:www-data /var/www/anonychat
+sudo chmod -R 775 /var/www/anonychat/storage
+sudo chmod -R 775 /var/www/anonychat/bootstrap/cache</code></pre>
+                </div>
+                <div class="card">
+                    <span class="os-badge os-windows">Windows (IIS)</span>
+                    <p style="font-size: 0.875rem;">Right-click <code>storage</code> and <code>bootstrap/cache</code>, go to Properties > Security, and add <strong>Full Control</strong> for the <code>IIS_IUSRS</code> user.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="ip-access">
+            <h2>Accessing via IP Address (No Domain)</h2>
+            <p>You can run AnonyChat perfectly fine using just your server's Public IP address. This is great for private setups or initial testing.</p>
+
+            <h3>1. Application URL</h3>
+            <p>In the Installation Wizard, when asked for the <strong>App URL</strong>, enter your IP address including the protocol:</p>
+            <pre><code>APP_URL=http://68.183.191.161</code></pre>
+
+            <h3>2. WebSocket Configuration</h3>
+            <p>For Real-time messaging to work on an IP-only server, ensure your <code>REVERB_HOST</code> is set to the same IP address.</p>
+            <div class="alert alert-warning">
+                <strong>Protocol Note:</strong> If you are accessing via IP without an SSL certificate, you <strong>must</strong> use <code>ws://</code> (Port 8080) instead of <code>wss://</code> (Port 443). Browsers generally allow insecure WebSockets ONLY if the main site is also on HTTP.
+            </div>
+            
+            <h3>3. Firewall Setup</h3>
+            <p>Ensure your server allows traffic on necessary ports:</p>
+            <ul style="color: var(--text-muted); padding-left: 1.5rem;">
+                <li><strong>Port 80/443</strong>: Standard web access.</li>
+                <li><strong>Port 8080</strong>: Default port for Reverb/WebSockets.</li>
+            </ul>
+        </section>
+
+        <section id="linux-setup">
+            <h2>Linux Setup</h2>
+            <span class="os-badge os-linux">Ubuntu / Debian / CentOS</span>
+            <p>For Linux environments, we recommend using Nginx as a reverse proxy.</p>
+            
+            <h3>Nginx Configuration</h3>
+            <pre><code>server {
+    listen 80;
+    server_name yourdomain.com;
+    root /var/www/anonychat/public;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+}</code></pre>
+
+            <h3>Apache Configuration</h3>
+            <p>Ensure <code>mod_rewrite</code> is enabled. The <code>public/.htaccess</code> file included with AnonyChat handles the routing automatically.</p>
+            <pre><code>sudo a2enmod rewrite
+sudo systemctl restart apache2</code></pre>
+        </section>
+
+        <section id="windows-setup">
+            <h2>Windows Setup (IIS)</h2>
+            <span class="os-badge os-windows">Windows Server / Windows 10/11</span>
+            <p>Running Laravel on IIS requires the <strong>URL Rewrite Module</strong>.</p>
+            <ol style="color: var(--text-muted); padding-left: 1.5rem;">
+                <li>Install <strong>PHP for Windows</strong> and link it to IIS via FastCGI.</li>
+                <li>Download and install the <a href="https://www.iis.net/downloads/microsoft/url-rewrite" style="color: var(--primary-light);">URL Rewrite Module</a>.</li>
+                <li>Create a new Site in IIS pointing to the <code>public/</code> folder.</li>
+                <li>IIS will automatically pick up the <code>public/web.config</code> file.</li>
+            </ol>
+            <div class="alert alert-warning" style="margin-top: 1rem;">
+                <strong>Permission Hint:</strong> Give <code>IIS_IUSRS</code> Full Control over the <code>storage</code> and <code>bootstrap/cache</code> directories.
+            </div>
+        </section>
+
+        <section id="vm-testing">
+            <h2>Testing on Virtual Machines</h2>
+            <p>If you wish to test the system on a VM (VirtualBox, VMware, etc.):</p>
+            <ul>
+                <li><strong>Linux VM:</strong> Use a clean Ubuntu Server 22.04 LTS instance. Use <code>ssh</code> to connect and follow the Linux Setup instructions.</li>
+                <li><strong>Windows VM:</strong> Ensure you enable the "Web Server (IIS)" role in Server Manager before starting.</li>
+                <li><strong>Networking:</strong> Set your VM network adapter to "Bridged" to access the installer from your host machine via its local IP.</li>
+            </ul>
+        </section>
+
+        <section id="websockets">
+            <h2>WebSockets (Laravel Reverb)</h2>
+            <p>Laravel Reverb is a first-party WebSocket server for Laravel applications.</p>
+            
+            <h3>WS vs WSS Protocol</h3>
+            <div class="grid">
+                <div class="card">
+                    <h4 style="color: var(--warning);">WS (ws://)</h4>
+                    <p style="font-size: 0.875rem;">Standard unencrypted connection. Should ONLY be used for local development or behind a trusted local proxy.</p>
+                </div>
+                <div class="card">
+                    <h4 style="color: var(--success);">WSS (wss://)</h4>
+                    <p style="font-size: 0.875rem;">Secure WebSocket. <strong>Required</strong> if your website is running on HTTPS. Most modern browsers will fail to connect if you try to use WS on an HTTPS site.</p>
+                </div>
+            </div>
+
+            <h3>Production WebSocket Setup</h3>
+            <p>In production, you should run the Reverb server on a high port (e.g. 8080) and use your web server (Nginx/Apache) to proxy the traffic to it under SSL (Port 443).</p>
+            <pre><code># Start the Reverb server
+php artisan reverb:start</code></pre>
+        </section>
+
+        <section id="post-install">
+            <h2>Post-Installation</h2>
+            <div class="alert alert-success">
+                Once the installer has finished, perform these final steps:
+            </div>
+            <ul style="color: var(--text-muted); padding-left: 1.5rem;">
+                <li><strong>Security:</strong> Delete the <code>install/</code> directory immediately.</li>
+                <li><strong>Background Tasks:</strong> Setup a Cron job to run the Laravel Scheduler every minute:
+                    <pre><code>* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1</code></pre>
+                </li>
+                <li><strong>Persistence:</strong> Use <strong>Supervisor</strong> (Linux) or a Windows Service to keep <code>php artisan queue:work</code> and <code>php artisan reverb:start</code> running 24/7.</li>
+            </ul>
+        </section>
+
+        <footer>
+            &copy; 2026 AnonyChat Development Team. Built with passion for privacy.
+        </footer>
+    </main>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav-link').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
