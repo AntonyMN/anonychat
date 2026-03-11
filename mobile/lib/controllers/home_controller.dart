@@ -134,6 +134,40 @@ class HomeController extends GetxController {
     // Explicit name listener
     channel.listen('.FriendRequestSent', (e) => _handleFriendRequest(e));
     channel.listen('.ConversationStarted', (e) => _handleConversationStarted(e));
+    channel.listen('.MessageSent', (e) => _handleMessageSent(e));
+
+    // Join online presence channel
+    echo!.join('online')
+      .here((users) {
+        print('Echo Online: ${users.length} users present');
+      })
+      .joining((user) {
+        print('Echo Online: User joined: $user');
+      })
+      .leaving((user) {
+        print('Echo Online: User left: $user');
+      });
+  }
+
+  void _handleMessageSent(dynamic e) {
+    print('Echo: MessageSent received: $e');
+    try {
+      final data = jsonDecode(e is String ? e : e.data);
+      final msg = Message.fromJson(data['message']);
+      
+      final index = conversations.indexWhere((c) => c.id == msg.conversationId);
+      if (index != -1) {
+        final conv = conversations[index];
+        // Move to top and update last message
+        conversations.removeAt(index);
+        conversations.insert(0, conv.copyWith(
+          lastMessage: msg,
+          isUnread: true,
+        ));
+      }
+    } catch (err) {
+      print('Echo Error parsing message sent: $err');
+    }
   }
 
   void _handleConversationStarted(dynamic e) {
@@ -179,6 +213,13 @@ class HomeController extends GetxController {
       Get.snackbar('Success', 'Friend request declined.');
     } catch (e) {
       Get.snackbar('Error', 'Failed to decline request.');
+    }
+  }
+
+  void markAsRead(int conversationId) {
+    final index = conversations.indexWhere((c) => c.id == conversationId);
+    if (index != -1 && conversations[index].isUnread) {
+      conversations[index] = conversations[index].copyWith(isUnread: false);
     }
   }
 

@@ -262,21 +262,43 @@ class HomeView extends StatelessWidget {
       color: Colors.white,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => Get.toNamed('/chat', arguments: conv),
+        onTap: () {
+          final homeController = Get.find<HomeController>();
+          homeController.markAsRead(conv.id);
+          Get.toNamed('/chat', arguments: conv);
+        },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
             children: [
               // Avatar
-              CircleAvatar(
-                radius: 26,
-                backgroundColor: const Color(0xFFE0F2FE),
-                backgroundImage: otherUser.profileImageUrl.isNotEmpty ? NetworkImage(otherUser.profileImageUrl) : null,
-                onBackgroundImageError: (_, __) {},
-                child: Text(
-                  otherUser.username[0].toUpperCase(),
-                  style: GoogleFonts.inter(color: const Color(0xFF06B6D4), fontWeight: FontWeight.w700),
-                ),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 26,
+                    backgroundColor: const Color(0xFFE0F2FE),
+                    backgroundImage: otherUser.profileImageUrl.isNotEmpty ? NetworkImage(otherUser.profileImageUrl) : null,
+                    onBackgroundImageError: (_, __) {},
+                    child: Text(
+                      otherUser.username[0].toUpperCase(),
+                      style: GoogleFonts.inter(color: const Color(0xFF06B6D4), fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  if (conv.isUnread)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF06B6D4),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(width: 14),
               // Info
@@ -286,7 +308,11 @@ class HomeView extends StatelessWidget {
                   children: [
                     Text(
                       otherUser.username,
-                      style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: const Color(0xFF0F172A), fontSize: 16),
+                      style: GoogleFonts.inter(
+                        fontWeight: conv.isUnread ? FontWeight.w800 : FontWeight.w700, 
+                        color: conv.isUnread ? const Color(0xFF06B6D4) : const Color(0xFF0F172A), 
+                        fontSize: 16
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -294,8 +320,9 @@ class HomeView extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.inter(
-                        color: lastMsg != null ? const Color(0xFF64748B) : const Color(0xFF94A3B8), 
+                        color: conv.isUnread ? const Color(0xFF0F172A) : (lastMsg != null ? const Color(0xFF64748B) : const Color(0xFF94A3B8)), 
                         fontSize: 14,
+                        fontWeight: conv.isUnread ? FontWeight.w600 : FontWeight.w400,
                         fontStyle: lastMsg != null ? FontStyle.normal : FontStyle.italic
                       ),
                     ),
@@ -306,7 +333,11 @@ class HomeView extends StatelessWidget {
               if (lastMsg != null)
                 Text(
                   DateFormat.jm().format(lastMsg.createdAt.toLocal()),
-                  style: GoogleFonts.inter(color: const Color(0xFFCBD5E1), fontSize: 12),
+                  style: GoogleFonts.inter(
+                    color: conv.isUnread ? const Color(0xFF06B6D4) : const Color(0xFFCBD5E1), 
+                    fontSize: 12,
+                    fontWeight: conv.isUnread ? FontWeight.w600 : FontWeight.w400,
+                  ),
                 ),
             ],
           ),

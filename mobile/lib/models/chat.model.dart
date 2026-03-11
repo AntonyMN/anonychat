@@ -25,6 +25,32 @@ class Message {
     required this.attachments,
   });
 
+  Message copyWith({
+    int? id,
+    int? conversationId,
+    int? senderId,
+    String? content,
+    String? type,
+    String? filePath,
+    DateTime? readAt,
+    DateTime? createdAt,
+    User? sender,
+    List<Attachment>? attachments,
+  }) {
+    return Message(
+      id: id ?? this.id,
+      conversationId: conversationId ?? this.conversationId,
+      senderId: senderId ?? this.senderId,
+      content: content ?? this.content,
+      type: type ?? this.type,
+      filePath: filePath ?? this.filePath,
+      readAt: readAt ?? this.readAt,
+      createdAt: createdAt ?? this.createdAt,
+      sender: sender ?? this.sender,
+      attachments: attachments ?? this.attachments,
+    );
+  }
+
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
       id: json['id'],
@@ -73,13 +99,34 @@ class Conversation {
   final Message? lastMessage;
   final DateTime createdAt;
 
+  final bool isUnread;
+
   Conversation({
     required this.id,
     required this.type,
     required this.users,
     this.lastMessage,
     required this.createdAt,
+    this.isUnread = false,
   });
+
+  Conversation copyWith({
+    int? id,
+    String? type,
+    List<User>? users,
+    Message? lastMessage,
+    DateTime? createdAt,
+    bool? isUnread,
+  }) {
+    return Conversation(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      users: users ?? this.users,
+      lastMessage: lastMessage ?? this.lastMessage,
+      createdAt: createdAt ?? this.createdAt,
+      isUnread: isUnread ?? this.isUnread,
+    );
+  }
 
   factory Conversation.fromJson(Map<String, dynamic> json) {
     return Conversation(
