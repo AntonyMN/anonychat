@@ -76,6 +76,8 @@ class ChatController extends Controller
             'user_id' => 'required|exists:users,id'
         ]);
 
+        \Log::info("start conversation attempt", ["user_id" => $request->user_id, "auth_id" => Auth::id()]);
+
         $participantIds = [Auth::id(), $request->user_id];
         sort($participantIds);
 
@@ -85,11 +87,18 @@ class ChatController extends Controller
         }, '=', 2)->first();
 
         if (!$conversation) {
+            \Log::info("creating new conversation");
             $conversation = Conversation::create();
             $conversation->users()->attach($participantIds);
         }
 
         if ($request->wantsJson()) {
+            $recipientId = $request->user_id;
+            try {
+                broadcast(new \App\Events\ConversationStarted($conversation, $recipientId))->toOthers();
+            } catch (\Throwable $e) {
+                \Log::error('ConversationStarted broadcast failed: ' . $e->getMessage());
+            }
             return response()->json($conversation->load('users', 'messages'));
         }
 

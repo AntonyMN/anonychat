@@ -114,7 +114,21 @@ class HomeController extends GetxController {
     var channel = echo!.private('notifications.${_auth.user.value!.id}');
     
     // Explicit name listener
-    channel.listen('FriendRequestSent', (e) => _handleFriendRequest(e));
+    channel.listen('.FriendRequestSent', (e) => _handleFriendRequest(e));
+    channel.listen('.ConversationStarted', (e) => _handleConversationStarted(e));
+  }
+
+  void _handleConversationStarted(dynamic e) {
+    print('Echo: ConversationStarted received: $e');
+    try {
+      final data = jsonDecode(e is String ? e : e.data);
+      final conv = Conversation.fromJson(data['conversation']);
+      if (!conversations.any((c) => c.id == conv.id)) {
+        conversations.insert(0, conv);
+      }
+    } catch (err) {
+      print('Echo Error parsing conversation started: $err');
+    }
   }
 
   void _handleFriendRequest(dynamic e) {

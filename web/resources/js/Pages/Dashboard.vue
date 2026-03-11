@@ -140,8 +140,13 @@ onMounted(() => {
     // Global notifications listener
     if (window.Echo) {
         window.Echo.private(`notifications.${user.id}`)
-            .listen('FriendRequestSent', (e) => {
+            .listen('.FriendRequestSent', (e) => {
                 props.friendRequests.push(e.friendRequest);
+            })
+            .listen('.ConversationStarted', (e) => {
+                if (!props.conversations.find(c => c.id === e.conversation.id)) {
+                    props.conversations.unshift(e.conversation);
+                }
             });
 
         // Presence listener

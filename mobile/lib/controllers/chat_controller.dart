@@ -75,10 +75,9 @@ class ChatController extends GetxController {
     var channel = echo!.private('conversation.${activeConversation.id}');
     
     // Use the absolute name to be safe
-    channel.listen('.App\\Events\\MessageSent', (e) => _handleNewMessage(e));
-    channel.listen('MessageSent', (e) => _handleNewMessage(e));
+    channel.listen('.MessageSent', (e) => _handleNewMessage(e));
     
-    channel.listen('MessageRead', (e) {
+    channel.listen('.MessageRead', (e) {
       print('Echo: MessageRead received');
       // Update read status for messages
     });
