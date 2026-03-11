@@ -170,14 +170,14 @@ watch(activeChat, (newChat, oldChat) => {
     }
     if (newChat && window.Echo) {
         window.Echo.private(`conversation.${newChat.id}`)
-            .listen('MessageSent', (e) => {
+            .listen('.MessageSent', (e) => {
                 if (e.message.sender_id !== user.id) {
                     messages.value.push(e.message);
                     scrollToBottom();
                     markAsRead(newChat.id);
                 }
             })
-            .listen('MessageRead', (e) => {
+            .listen('.MessageRead', (e) => {
                 messages.value.forEach(msg => {
                     if (msg.sender_id === user.id && !msg.read_at) {
                         msg.read_at = new Date().toISOString();
