@@ -29,4 +29,9 @@ class MessageRead implements ShouldBroadcastNow
             new PrivateChannel('conversation.' . $this->conversationId),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'MessageRead';
+    }
 }

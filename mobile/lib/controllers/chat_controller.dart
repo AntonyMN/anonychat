@@ -78,8 +78,23 @@ class ChatController extends GetxController {
     channel.listen('.MessageSent', (e) => _handleNewMessage(e));
     
     channel.listen('.MessageRead', (e) {
-      print('Echo: MessageRead received');
-      // Update read status for messages
+      print('Echo: MessageRead received: $e');
+      try {
+        final data = jsonDecode(e is String ? e : e.data);
+        final lastReadId = data['lastReadId'];
+        
+        // Update all messages that were read
+        for (var i = 0; i < messages.length; i++) {
+          if (messages[i].senderId == _auth.user.value!.id && 
+              messages[i].id <= lastReadId && 
+              messages[i].readAt == null) {
+            messages[i] = messages[i].copyWith(readAt: DateTime.now());
+          }
+        }
+        messages.refresh();
+      } catch (err) {
+        print('Echo Error parsing message read: $err');
+      }
     });
   }
 
