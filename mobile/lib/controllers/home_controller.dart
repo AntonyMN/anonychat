@@ -87,7 +87,17 @@ class HomeController extends GetxController {
       return;
     }
 
-    print('Echo Setup: Initializing with host chat.orellepos.com');
+    // Disconnect old instance if exists
+    if (echo != null) {
+      print('Echo Setup: Disconnecting old instance');
+      try {
+        echo!.disconnect();
+      } catch (e) {
+        print('Echo Setup: Error disconnecting old instance: $e');
+      }
+    }
+
+    print('Echo Setup: Initializing with host chat.orellepos.com and token prefix: ${token.substring(0, 5)}...');
 
     PusherOptions options = PusherOptions(
       host: 'chat.orellepos.com',
@@ -105,6 +115,14 @@ class HomeController extends GetxController {
 
     // Use the correct Reverb key from .env: 9hnxdlgeeojuxglm2xxv
     PusherClient pusher = PusherClient('9hnxdlgeeojuxglm2xxv', options, autoConnect: true, enableLogging: true);
+    
+    pusher.onConnectionStateChange((state) {
+      print('Echo: Connection state changed to ${state?.currentState}');
+    });
+
+    pusher.onConnectionError((error) {
+      print('Echo: Connection error: ${error?.message}');
+    });
 
     echo = Echo(
       broadcaster: EchoBroadcasterType.Pusher,
