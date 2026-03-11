@@ -188,6 +188,7 @@ class ChatController extends Controller
 
     public function markAsRead(Conversation $conversation)
     {
+        Log::info('markAsRead hit', ['conversation_id' => $conversation->id, 'user_id' => Auth::id()]);
         $this->authorizeUserInConversation($conversation);
 
         $lastMessage = $conversation->messages()
@@ -197,12 +198,15 @@ class ChatController extends Controller
             ->first();
 
         if ($lastMessage) {
+            Log::info('Marking as read', ['last_message_id' => $lastMessage->id]);
             $conversation->messages()
                 ->where('sender_id', '!=', Auth::id())
                 ->whereNull('read_at')
                 ->update(['read_at' => now()]);
 
             broadcast(new MessageRead($conversation->id, $lastMessage->id))->toOthers();
+        } else {
+            Log::info('No unread messages found to mark as read');
         }
 
         return response()->json(['status' => 'success']);
