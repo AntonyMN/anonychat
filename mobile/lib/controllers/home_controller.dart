@@ -66,6 +66,13 @@ class HomeController extends GetxController {
           .map((c) => Conversation.fromJson(c))
           .toList();
       
+      // Local Sorting: Newest message activity first
+      conversations.sort((a, b) {
+        final dateA = a.lastMessage?.createdAt ?? a.createdAt;
+        final dateB = b.lastMessage?.createdAt ?? b.createdAt;
+        return dateB.compareTo(dateA);
+      });
+      
       friendRequests.value = (response.data['friendRequests'] as List)
           .map((f) => FriendRequest.fromJson(f))
           .toList();

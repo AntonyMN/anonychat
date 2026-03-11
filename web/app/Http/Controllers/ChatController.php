@@ -10,12 +10,13 @@ use App\Models\Message;
 use App\Models\Attachment;
 use App\Models\FriendRequest;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Events\MessageSent;
 use App\Events\MessageRead;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
@@ -30,6 +31,12 @@ class ChatController extends Controller
                 },
                 'lastMessage'
             ])
+            ->leftJoin('messages', function ($join) {
+                $join->on('conversations.id', '=', 'messages.conversation_id')
+                    ->on('messages.id', '=', DB::raw('(SELECT id FROM messages WHERE conversation_id = conversations.id ORDER BY created_at DESC LIMIT 1)'));
+            })
+            ->select('conversations.*')
+            ->orderByRaw('COALESCE(messages.created_at, conversations.created_at) DESC')
             ->get();
 
         $friendRequests = FriendRequest::where('receiver_id', $user->id)
