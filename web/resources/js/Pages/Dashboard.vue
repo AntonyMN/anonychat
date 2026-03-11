@@ -12,6 +12,9 @@ const props = defineProps({
     activeChatId: [String, Number],
 });
 
+const localConversations = ref([...props.conversations]);
+const unreadConversations = ref(new Set());
+
 const user = usePage().props.auth.user;
 const globalNotifications = computed(() => usePage().props.auth.notifications?.friendRequests || []);
 const friendRequestsList = computed(() => {
@@ -39,7 +42,7 @@ const fileInput = ref(null);
 const attachments = ref([]);
 
 const sortedConversations = computed(() => {
-    return [...props.conversations].sort((a, b) => {
+    return [...localConversations.value].sort((a, b) => {
         const dateA = a.last_message ? new Date(a.last_message.created_at) : new Date(a.created_at);
         const dateB = b.last_message ? new Date(b.last_message.created_at) : new Date(b.created_at);
         return dateB - dateA;
@@ -48,6 +51,7 @@ const sortedConversations = computed(() => {
 
 const selectChat = async (conversation) => {
     activeChat.value = conversation;
+    unreadConversations.value.delete(conversation.id);
     try {
         const response = await axios.get(route('chat.show', conversation.id));
         messages.value = response.data.messages;
@@ -77,7 +81,15 @@ const sendMessage = async () => {
 
     try {
         const response = await axios.post(route('chat.message.send', activeChat.value.id), formData);
-        messages.value.push(response.data);
+        const msg = response.data;
+        messages.value.push(msg);
+        
+        // Update local conversation preview
+        const conv = localConversations.value.find(c => c.id === activeChat.value.id);
+        if (conv) {
+            conv.last_message = msg;
+        }
+
         newMessage.value = '';
         attachments.value = [];
         scrollToBottom();
@@ -135,6 +147,12 @@ const handleFileChange = (e) => {
     attachments.value = Array.from(e.target.files);
 };
 
+const formatTime = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
 // Real-time listener
 onMounted(() => {
     // Global notifications listener
@@ -144,8 +162,17 @@ onMounted(() => {
                 props.friendRequests.push(e.friendRequest);
             })
             .listen('.ConversationStarted', (e) => {
-                if (!props.conversations.find(c => c.id === e.conversation.id)) {
-                    props.conversations.unshift(e.conversation);
+                if (!localConversations.value.find(c => c.id === e.conversation.id)) {
+                    localConversations.value.unshift(e.conversation);
+                }
+            })
+            .listen('.MessageSent', (e) => {
+                const conv = localConversations.value.find(c => c.id === e.message.conversation_id);
+                if (conv) {
+                    conv.last_message = e.message;
+                    if (activeChat.value?.id !== conv.id) {
+                        unreadConversations.value.add(conv.id);
+                    }
                 }
             });
 
@@ -272,12 +299,19 @@ watch(() => props.activeChatId, (newId) => {
                         </div>
                         <div class="flex-1 text-left">
                             <div class="flex items-center justify-between">
-                                <span class="font-bold text-sm dark:text-gray-200">{{ conv.users[0].username }}</span>
-                                <span class="text-[10px] text-slate-400">12:30 PM</span>
+                                <span class="font-bold text-sm dark:text-gray-200" :class="unreadConversations.has(conv.id) ? 'text-cyan-600 dark:text-cyan-400' : ''">
+                                    {{ conv.users[0].username }}
+                                </span>
+                                <span class="text-[10px] text-slate-400">
+                                    {{ conv.last_message ? formatTime(conv.last_message.created_at) : formatTime(conv.created_at) }}
+                                </span>
                             </div>
-                            <p class="text-xs text-slate-400 truncate max-w-[140px]">
-                                {{ conv.last_message ? conv.last_message.content : 'Start a conversation...' }}
-                            </p>
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="text-xs truncate max-w-[140px]" :class="unreadConversations.has(conv.id) ? 'text-slate-900 dark:text-white font-bold' : 'text-slate-400 font-medium'">
+                                    {{ conv.last_message ? conv.last_message.content : 'Start a conversation...' }}
+                                </p>
+                                <div v-if="unreadConversations.has(conv.id)" class="w-2 h-2 rounded-full bg-cyan-500 shrink-0 shadow-sm shadow-cyan-500/50"></div>
+                            </div>
                         </div>
                     </button>
                     

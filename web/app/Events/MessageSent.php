@@ -24,9 +24,17 @@ class MessageSent implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
-        return [
+        $channels = [
             new PrivateChannel('conversation.' . $this->message->conversation_id),
         ];
+
+        // Also broadcast to other users in the conversation for sidebar updates
+        $otherUsers = $this->message->conversation->users->where('id', '!=', $this->message->sender_id);
+        foreach ($otherUsers as $user) {
+            $channels[] = new PrivateChannel('notifications.' . $user->id);
+        }
+
+        return $channels;
     }
 
     public function broadcastAs(): string
