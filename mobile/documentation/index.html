@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnonyChat Mobile | Development & Implementation Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --bg-main: #0f172a;
+            --bg-sidebar: #1e293b;
+            --bg-card: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --code-bg: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            padding: 2rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(to right, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .nav-link {
+            display: block;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            font-size: 0.9375rem;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-light);
+        }
+
+        /* Main Content */
+        .content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 4rem 6rem;
+            max-width: 1200px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            margin: 3rem 0 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            color: var(--primary-light);
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin: 2rem 0 1rem;
+            color: var(--text-main);
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            color: var(--text-muted);
+            font-size: 1.0625rem;
+        }
+
+        .alert {
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid;
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .alert-info { border-color: var(--primary); }
+        .alert-success { border-color: var(--success); }
+        .alert-warning { border-color: var(--warning); }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9375rem;
+            color: #d1d5db;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+
+        .os-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .os-android { background: rgba(52, 211, 153, 0.1); color: #34d399; }
+        .os-ios { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+
+        footer {
+            margin-top: 5rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar { width: 220px; padding: 1.5rem; }
+            .content { margin-left: 220px; padding: 3rem; }
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .content { margin-left: 0; padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">Mobile Docs</div>
+        
+        <nav>
+            <div class="nav-group">
+                <div class="nav-title">Getting Started</div>
+                <a href="#introduction" class="nav-link">Introduction</a>
+                <a href="#requirements" class="nav-link">Requirements</a>
+                <a href="#dev-setup" class="nav-link">Development Setup</a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-title">Building & Deployment</div>
+                <a href="#android-build" class="nav-link">Android Build</a>
+                <a href="#ios-build" class="nav-link">iOS Build</a>
+                <a href="#store-deployment" class="nav-link">Store Deployment</a>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-title">Integration</div>
+                <a href="#backend-config" class="nav-link">Backend Integration</a>
+                <a href="#websockets" class="nav-link">WebSockets & Real-time</a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="content">
+        <section id="introduction">
+            <h1>Mobile Documentation</h1>
+            <p>Welcome to the AnonyChat Mobile development guide. The mobile application is built using Flutter, providing a fast, cross-platform experience for Android and iOS.</p>
+            <div class="alert alert-info">
+                <strong>AnonyChat Mobile</strong> connects seamlessly to the Laravel backend for secure, real-time messaging.
+            </div>
+        </section>
+
+        <section id="requirements">
+            <h2>Requirements</h2>
+            <p>To develop or build the AnonyChat Mobile app, you need the following tools:</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>Flutter SDK</h3>
+                    <ul style="color: var(--text-muted); padding-left: 1rem;">
+                        <li>Flutter 3.x (Stable)</li>
+                        <li>Dart 3.x</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Platforms</h3>
+                    <ul style="color: var(--text-muted); padding-left: 1rem;">
+                        <li><strong>Android:</strong> Android Studio, Java JDK 17+, Android SDK</li>
+                        <li><strong>iOS:</strong> macOS with Xcode 15+ (Required for iOS)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="dev-setup">
+            <h2>Development Setup</h2>
+            <p>If you received the code as a <code>.zip</code> file, follow these steps to get started:</p>
+            
+            <h3>1. Extract & Open</h3>
+            <p>Extract the <code>mobile/</code> folder to your project directory. Open the folder in VS Code or Android Studio.</p>
+
+            <h3>2. Install Dependencies</h3>
+            <p>Run the following command in the terminal inside the <code>mobile/</code> directory:</p>
+            <pre><code>flutter pub get</code></pre>
+
+            <h3>3. Configure Environment</h3>
+            <p>Open <code>lib/services/api_service.dart</code> and set your backend URL:</p>
+            <pre><code>static const String baseUrl = 'https://chat.orellepos.com/api'; </code></pre>
+
+            <h3>4. Run on Device</h3>
+            <p>Connect your physical device or start an emulator and run:</p>
+            <pre><code># Run in Debug Mode
+flutter run</code></pre>
+        </section>
+
+        <section id="android-build">
+            <h2>Android Build</h2>
+            <span class="os-badge os-android">Windows / Linux / macOS</span>
+            <p>To create a production-ready APK or App Bundle for Android:</p>
+            
+            <h3>Build APK</h3>
+            <pre><code>flutter build apk --release</code></pre>
+            <p>The generated file will be at: <code>build/app/outputs/flutter-apk/app-release.apk</code></p>
+
+            <h3>Build App Bundle (for Play Store)</h3>
+            <pre><code>flutter build appbundle --release</code></pre>
+        </section>
+
+        <section id="ios-build">
+            <h2>iOS Build</h2>
+            <span class="os-badge os-ios">macOS Only</span>
+            <p>Building for iOS requires a Mac with Xcode installed.</p>
+            
+            <h3>1. Prepare CocoaPods</h3>
+            <pre><code>cd ios
+pod install
+cd ..</code></pre>
+
+            <h3>2. Build IPA</h3>
+            <pre><code>flutter build ipa --release</code></pre>
+            <p>You can then find the <code>.xcarchive</code> and export it via Xcode's Organizer to create an IPA for distribution.</p>
+        </section>
+
+        <section id="backend-config">
+            <h2>Backend Integration</h2>
+            <p>The app communicates with the Laravel backend via a RESTful API. Ensure the following are configured correctly:</p>
+            <div class="alert alert-warning">
+                <strong>Authentication:</strong> The app uses <strong>Laravel Sanctum</strong>. Token storage is handled automatically via <code>GetStorage</code>.
+            </div>
+            <h3>Critical Files</h3>
+            <ul style="color: var(--text-muted); padding-left: 1.5rem;">
+                <li><code>lib/services/api_service.dart</code>: Base API configuration.</li>
+                <li><code>lib/controllers/auth_controller.dart</code>: Handles Login/Register/Logout.</li>
+                <li><code>lib/controllers/chat_controller.dart</code>: Handles message sending and read receipts.</li>
+            </ul>
+        </section>
+
+        <section id="websockets">
+            <h2>WebSockets & Real-time</h2>
+            <p>Real-time updates are powered by <strong>Laravel Reverb</strong> and the <code>laravel_echo</code> package.</p>
+
+            <h3>Echo Configuration</h3>
+            <p>Edit <code>lib/services/api_service.dart</code> (or the dedicated Echo service) to match your Reverb settings:</p>
+            <pre><code>// Reverb Connection Config
+'host': 'chat.orellepos.com',
+'port': 443,
+'encrypted': true,
+'wsPort': 443,
+'wssPort': 443,</code></pre>
+
+            <div class="alert alert-info">
+                <strong>Read Status Logic:</strong> Read receipts are sent to the <code>/api/chat/{id}/read</code> endpoint and broadcasted as <code>MessageRead</code>.
+            </div>
+        </section>
+
+        <section id="store-deployment">
+            <h2>Next Steps: Store Deployment</h2>
+            <p>Once you are ready to publish, follow these steps:</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>Google Play Store</h3>
+                    <ol style="font-size: 0.875rem; color: var(--text-muted); padding-left: 1rem;">
+                        <li>Create a Developer Account.</li>
+                        <li>Configure App Icons & Splashes.</li>
+                        <li>Upload the <code>app-release.aab</code>.</li>
+                        <li>Submit for review.</li>
+                    </ol>
+                </div>
+                <div class="card">
+                    <h3>Apple App Store</h3>
+                    <ol style="font-size: 0.875rem; color: var(--text-muted); padding-left: 1rem;">
+                        <li>Join Apple Developer Program.</li>
+                        <li>Setup App ID & Certificates in Xcode.</li>
+                        <li>Upload via Transporter or Xcode.</li>
+                        <li>Submit for Review.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            &copy; 2026 AnonyChat Development Team. Beautiful cross-platform communication.
+        </footer>
+    </main>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav-link').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
